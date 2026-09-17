@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cinémathèque — Administration</title>
+
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/app.css">
+
+    <script src="js/lib/theme-init.js"></script>
+</head>
+<body>
+
+<header class="entete">
+    <div class="entete__contenu">
+        <a class="logo" href="index.html">Cinémathèque</a>
+
+        <nav class="nav">
+            <a class="nav__lien" href="index.html">Catalogue</a>
+            <a class="nav__lien nav__lien--actif" href="admin.html">Administration</a>
+        </nav>
+
+        <button type="button" id="bouton-theme" class="bouton-theme"
+                aria-label="Changer de thème">Thème</button>
+    </div>
+</header>
+
+<main class="contenu contenu--etroit">
+    <h1 class="titre-page">Administration</h1>
+
+    <div id="connexion"></div>
+    <p id="message" class="message" hidden></p>
+    <div id="statistiques"></div>
+</main>
+
+<script type="module" src="js/admin.js"></script>
+
+</body>
+</html>

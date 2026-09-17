@@ -1,0 +1,6 @@
+# Fichiers d'environnement des éditeurs et systèmes
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

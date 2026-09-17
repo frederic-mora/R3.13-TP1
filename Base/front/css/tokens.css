@@ -1,0 +1,45 @@
+/* ---------------------------------------------------------------------------
+   Variables de thème.
+
+   Le thème clair est la valeur par défaut. Le thème sombre est obtenu en
+   ajoutant la classe « theme-dark » sur l'élément <html>, ce que fait
+   js/lib/theme-init.js au chargement.
+   --------------------------------------------------------------------------- */
+
+:root {
+    --fond:            #f6f4f0;
+    --surface:         #ffffff;
+    --surface-creuse:  #eeeae3;
+    --texte:           #22201d;
+    --texte-doux:      #6d6862;
+    --bordure:         #ddd8d0;
+    --accent:          #0f6f6a;
+    --accent-texte:    #ffffff;
+    --alerte:          #b42318;
+    --succes:          #1a7f4b;
+
+    --ombre:  0 1px 2px rgba(0, 0, 0, .05), 0 6px 16px rgba(0, 0, 0, .05);
+    --rayon:  10px;
+
+    /* Luminosité des visuels de carte, ajustée selon le thème. */
+    --carte-clair:  58%;
+    --carte-sombre: 38%;
+}
+
+.theme-dark {
+    --fond:            #16181b;
+    --surface:         #1d2024;
+    --surface-creuse:  #24282d;
+    --texte:           #e4e2de;
+    --texte-doux:      #9a958d;
+    --bordure:         #32373d;
+    --accent:          #4ec9b8;
+    --accent-texte:    #10221f;
+    --alerte:          #f08b82;
+    --succes:          #6fce9a;
+
+    --ombre:  0 1px 2px rgba(0, 0, 0, .3), 0 6px 16px rgba(0, 0, 0, .25);
+
+    --carte-clair:  42%;
+    --carte-sombre: 26%;
+}

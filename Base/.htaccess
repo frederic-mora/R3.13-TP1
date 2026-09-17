@@ -1,0 +1,22 @@
+# ---------------------------------------------------------------------------
+# Aiguillage principal du projet.
+#
+# Le projet est déposé dans htdocs/ et accessible à http://localhost/tp-cookies/
+# Ce fichier décide, pour chaque requête, si elle relève du front ou du back.
+# ---------------------------------------------------------------------------
+
+# Pas de listing de dossier si un index est absent.
+Options -Indexes
+
+RewriteEngine On
+
+# 1. Toute requête /api/... est confiée au back (l'API JSON).
+#    QSA conserve la chaîne de requête (?page=2), END arrête la réécriture.
+RewriteRule ^api/ back/index.php [END,QSA]
+
+# 2. Tout le reste est servi depuis front/ : pages, CSS, JavaScript.
+#    Une URL vide capture la racine et donne front/, donc front/index.html.
+RewriteRule ^(.*)$ front/$1 [END]
+
+# Note : le drapeau END (Apache 2.4) est indispensable ici. Avec L, la requête
+# réécrite serait reprise par la règle 2 et finirait en front/back/index.php.

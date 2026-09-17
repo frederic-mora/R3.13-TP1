@@ -1,0 +1,282 @@
+/* ---------------------------------------------------------------------------
+   Mise en forme de l'application.
+   --------------------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--fond);
+    color: var(--texte);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+}
+
+/* --- En-tête ------------------------------------------------------------- */
+
+.entete {
+    background: var(--surface);
+    border-bottom: 1px solid var(--bordure);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.entete__contenu {
+    max-width: 68rem;
+    margin: 0 auto;
+    padding: .75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: -.01em;
+    color: var(--texte);
+    text-decoration: none;
+}
+
+.nav { display: flex; gap: 1rem; margin-right: auto; }
+
+.nav__lien {
+    color: var(--texte-doux);
+    text-decoration: none;
+    font-size: .92rem;
+    padding: .25rem 0;
+    border-bottom: 2px solid transparent;
+}
+
+.nav__lien:hover { color: var(--texte); }
+
+.nav__lien--actif {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+}
+
+.bouton-theme {
+    font: inherit;
+    font-size: .85rem;
+    padding: .3rem .7rem;
+    border: 1px solid var(--bordure);
+    border-radius: 999px;
+    background: var(--surface-creuse);
+    color: var(--texte-doux);
+    cursor: pointer;
+}
+
+.bouton-theme:hover { color: var(--texte); }
+
+/* --- Contenu ------------------------------------------------------------- */
+
+.contenu {
+    max-width: 68rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+}
+
+.contenu--etroit { max-width: 40rem; }
+
+.titre-page {
+    font-size: 1.7rem;
+    margin: 0 0 1.25rem;
+    letter-spacing: -.02em;
+}
+
+/* --- Barre d'outils ------------------------------------------------------ */
+
+.barre-outils {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1.25rem;
+    padding: .9rem 1.1rem;
+    margin-bottom: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon);
+}
+
+.champ { display: flex; flex-direction: column; gap: .25rem; }
+
+.champ__etiquette {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--texte-doux);
+    font-weight: 600;
+}
+
+.champ__controle {
+    font: inherit;
+    font-size: .92rem;
+    padding: .4rem .6rem;
+    border: 1px solid var(--bordure);
+    border-radius: 6px;
+    background: var(--surface-creuse);
+    color: var(--texte);
+    min-width: 11rem;
+}
+
+.barre-outils__resultat {
+    margin-left: auto;
+    font-size: .85rem;
+    color: var(--texte-doux);
+}
+
+/* --- Grille de films ----------------------------------------------------- */
+
+.grille {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.1rem;
+}
+
+.carte {
+    background: var(--surface);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon);
+    overflow: hidden;
+    box-shadow: var(--ombre);
+    display: flex;
+    flex-direction: column;
+}
+
+/* La teinte est calculée à partir du titre, dans components/carteFilm.js.
+   Aucune image n'est chargée : le squelette ne dépend d'aucun fichier externe. */
+.carte__visuel {
+    height: 96px;
+    background: linear-gradient(
+        135deg,
+        hsl(var(--teinte, 200) 40% var(--carte-clair)),
+        hsl(calc(var(--teinte, 200) + 35) 45% var(--carte-sombre))
+    );
+    display: flex;
+    align-items: flex-end;
+    padding: .5rem .7rem;
+}
+
+.carte__genre {
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: #fff;
+    background: rgba(0, 0, 0, .35);
+    padding: .15rem .45rem;
+    border-radius: 4px;
+}
+
+.carte__corps { padding: .75rem .85rem 1rem; flex: 1; }
+
+.carte__titre {
+    font-size: .98rem;
+    font-weight: 700;
+    margin: 0 0 .2rem;
+    line-height: 1.3;
+}
+
+.carte__realisateur { font-size: .85rem; color: var(--texte-doux); margin: 0 0 .6rem; }
+
+.carte__details {
+    display: flex;
+    gap: .6rem;
+    font-size: .78rem;
+    color: var(--texte-doux);
+    align-items: center;
+}
+
+.carte__note {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: .88rem;
+}
+
+/* --- Pagination ---------------------------------------------------------- */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.bouton {
+    font: inherit;
+    font-size: .9rem;
+    padding: .45rem 1rem;
+    border: 1px solid var(--bordure);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--texte);
+    cursor: pointer;
+}
+
+.bouton:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.bouton:disabled { opacity: .4; cursor: not-allowed; }
+
+.bouton--principal {
+    background: var(--accent);
+    color: var(--accent-texte);
+    border-color: var(--accent);
+    font-weight: 600;
+}
+
+.pagination__position { font-size: .88rem; color: var(--texte-doux); }
+
+/* --- Messages ------------------------------------------------------------ */
+
+.message {
+    padding: .7rem 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--bordure);
+    background: var(--surface);
+    font-size: .92rem;
+    margin: 0 0 1.25rem;
+}
+
+.message--erreur { border-color: var(--alerte); color: var(--alerte); }
+.message--succes { border-color: var(--succes); color: var(--succes); }
+
+/* --- Formulaire et statistiques ------------------------------------------ */
+
+.panneau {
+    background: var(--surface);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.panneau__titre { margin: 0 0 1rem; font-size: 1.05rem; }
+
+.formulaire { display: flex; flex-direction: column; gap: .9rem; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
+
+.stat {
+    background: var(--surface-creuse);
+    border-radius: 8px;
+    padding: .9rem 1rem;
+}
+
+.stat__valeur { font-size: 1.5rem; font-weight: 700; line-height: 1.1; }
+.stat__legende { font-size: .78rem; color: var(--texte-doux); text-transform: uppercase; letter-spacing: .06em; }
+
+.liste-genres { list-style: none; padding: 0; margin: 1rem 0 0; }
+
+.liste-genres li {
+    display: flex;
+    justify-content: space-between;
+    padding: .35rem 0;
+    border-bottom: 1px solid var(--bordure);
+    font-size: .9rem;
+}
+
+.liste-genres li:last-child { border-bottom: none; }
