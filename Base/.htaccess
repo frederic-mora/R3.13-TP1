@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # Aiguillage principal du projet.
 #
-# Le projet est déposé dans htdocs/ et accessible à http://localhost/tp-cookies/
+# Le projet est déposé dans htdocs/ et accessible à http://localhost/Base/
 # Ce fichier décide, pour chaque requête, si elle relève du front ou du back.
 # ---------------------------------------------------------------------------
 

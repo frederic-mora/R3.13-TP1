@@ -6,7 +6,7 @@ la séance sont signalées par des commentaires `TP · Phase N`.
 
 ## Installation
 
-1. Copiez le dossier `tp-cookies/` dans `htdocs` (XAMPP) ou `www` (WAMP).
+1. Copiez le dossier `Base/` dans `htdocs` (XAMPP) ou `www` (WAMP).
 2. Importez `sql/import.sql` **dans votre base existante**, depuis phpMyAdmin :
    sélectionnez votre base dans la colonne de gauche, puis ouvrez l'onglet
    « Importer ».
@@ -17,7 +17,7 @@ la séance sont signalées par des commentaires `TP · Phase N`.
 
 3. Renseignez le nom de votre base et vos identifiants dans
    `back/config/config.php`.
-4. Ouvrez <http://localhost/tp-cookies/>. Vous devez voir une grille de douze
+4. Ouvrez <http://localhost/Base/>. Vous devez voir une grille de douze
    films.
 
 ## Si ça ne marche pas
@@ -32,7 +32,7 @@ la séance sont signalées par des commentaires `TP · Phase N`.
 ## Organisation
 
 ```
-tp-cookies/
+Base/
 ├── .htaccess          aiguillage : /api/... vers le back, le reste vers le front
 │
 ├── front/             pages, styles et JavaScript — servis tels quels
