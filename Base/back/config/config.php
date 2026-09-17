@@ -13,9 +13,9 @@ return [
     'bdd' => [
         'hote'        => 'localhost',
         'port'        => 3306,
-        'base'        => 'tp_cookies',
-        'utilisateur' => 'root',
-        'motdepasse'  => '',
+        'base'        => 'morap01',
+        'utilisateur' => 'morap01',
+        'motdepasse'  => 'morap01',
     ],
 
     // En développement, les erreurs sont détaillées dans la réponse JSON.

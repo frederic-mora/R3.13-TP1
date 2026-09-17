@@ -11,6 +11,11 @@ use PDO;
  *
  * Cette couche ne contient aucune règle métier et ne décide de rien :
  * elle exécute les requêtes qu'on lui demande et renvoie des tableaux.
+ *
+ * Les tables sont préfixées « r313_ » pour cohabiter avec celles que votre base
+ * contient déjà. Chacune est aussitôt renommée par un alias — « r313_film AS
+ * film » — pour que le reste des requêtes reste lisible, ici comme dans les
+ * contrôleurs.
  */
 final class FilmModel
 {
@@ -23,7 +28,7 @@ final class FilmModel
      */
     public function compter(): int
     {
-        return (int) $this->pdo->query('SELECT COUNT(*) FROM film')->fetchColumn();
+        return (int) $this->pdo->query('SELECT COUNT(*) FROM r313_film')->fetchColumn();
     }
 
     /**
@@ -45,8 +50,8 @@ final class FilmModel
                        film.duree_minutes,
                        film.note_moyenne,
                        genre.libelle AS genre
-                  FROM film
-            INNER JOIN genre ON genre.id = film.genre_id
+                  FROM r313_film  AS film
+            INNER JOIN r313_genre AS genre ON genre.id = film.genre_id
               ORDER BY {$ordre}, film.id
                  LIMIT :limite OFFSET :decalage";
 
@@ -72,14 +77,14 @@ final class FilmModel
             'SELECT COUNT(*)           AS total,
                     AVG(note_moyenne)  AS note_moyenne,
                     AVG(duree_minutes) AS duree_moyenne
-               FROM film'
+               FROM r313_film'
         )->fetch();
 
         $parGenre = $this->pdo->query(
             'SELECT genre.libelle AS genre,
                     COUNT(*)      AS nombre
-               FROM film
-         INNER JOIN genre ON genre.id = film.genre_id
+               FROM r313_film  AS film
+         INNER JOIN r313_genre AS genre ON genre.id = film.genre_id
            GROUP BY genre.libelle
            ORDER BY nombre DESC, genre.libelle ASC'
         )->fetchAll();

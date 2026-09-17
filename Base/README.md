@@ -7,14 +7,16 @@ la séance sont signalées par des commentaires `TP · Phase N`.
 ## Installation
 
 1. Copiez le dossier `tp-cookies/` dans `htdocs` (XAMPP) ou `www` (WAMP).
-2. Importez la base, depuis phpMyAdmin ou en ligne de commande :
+2. Importez `sql/import.sql` **dans votre base existante**, depuis phpMyAdmin :
+   sélectionnez votre base dans la colonne de gauche, puis ouvrez l'onglet
+   « Importer ».
 
-   ```
-   mysql -u root -p < sql/01-schema.sql
-   mysql -u root -p < sql/02-donnees.sql
-   ```
+   Aucune base n'est créée : le script ajoute deux tables, `r313_film` et
+   `r313_genre`, et les remplit. Le préfixe `r313_` évite tout conflit avec ce
+   que votre base contient déjà.
 
-3. Vérifiez les identifiants dans `back/config/config.php`.
+3. Renseignez le nom de votre base et vos identifiants dans
+   `back/config/config.php`.
 4. Ouvrez <http://localhost/tp-cookies/>. Vous devez voir une grille de douze
    films.
 
@@ -23,9 +25,9 @@ la séance sont signalées par des commentaires `TP · Phase N`.
 | Symptôme | Cause probable |
 |---|---|
 | Un listing de dossiers au lieu de l'application | `mod_rewrite` désactivé, ou `AllowOverride All` absent |
-| « Impossible de charger le catalogue » | identifiants de `config.php`, ou base non importée |
+| « Impossible de charger le catalogue » | nom de base ou identifiants de `config.php`, ou tables non importées |
 | Page blanche, erreurs de module dans la console | le projet n'est pas servi par Apache, mais ouvert en `file://` |
-| Accents transformés en `ComÃ©die` | base importée avant l'ajout de `SET NAMES utf8mb4` : réimportez |
+| Accents transformés en `ComÃ©die` | tables importées avant l'ajout de `SET NAMES utf8mb4` : réimportez |
 
 ## Organisation
 
@@ -53,7 +55,7 @@ tp-cookies/
 │       ├── Model/     accès aux données, ne décide de rien
 │       └── routes.php table des routes
 │
-└── sql/               schéma et jeu de données (60 films, 8 genres)
+└── sql/import.sql     tables r313_film et r313_genre (60 films, 8 genres)
 ```
 
 ### Le back

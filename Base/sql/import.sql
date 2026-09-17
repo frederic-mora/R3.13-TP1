@@ -1,10 +1,17 @@
 -- ---------------------------------------------------------------------------
--- TP Cookies — jeu de données
+-- TP Cookies — tables et jeu de données
 --
--- 60 films répartis sur 8 genres : de quoi remplir 5 pages de 12, 3 pages de 24
--- ou 2 pages de 48, et rendre le tri visible à l'œil nu.
+-- Ce script ne crée PAS de base de données : il ajoute ses deux tables à une
+-- base existante, la vôtre. Depuis phpMyAdmin, sélectionnez d'abord votre base
+-- dans la colonne de gauche, puis importez ce fichier depuis l'onglet
+-- « Importer ».
 --
---     mysql -u root -p < sql/02-donnees.sql
+-- Les tables sont préfixées « r313_ » pour ne pas entrer en conflit avec celles
+-- que votre base contient déjà. Elles sont créées puis remplies : 60 films
+-- répartis sur 8 genres, de quoi remplir 5 pages de 12, 3 pages de 24 ou
+-- 2 pages de 48, et rendre le tri visible à l'œil nu.
+--
+-- L'import est rejouable : les tables sont supprimées avant d'être recréées.
 -- ---------------------------------------------------------------------------
 
 -- Le jeu de caractères de la connexion est fixé explicitement : sans cela,
@@ -12,9 +19,62 @@
 -- et « Comédie » deviendrait « ComÃ©die » à la lecture par l'application.
 SET NAMES utf8mb4;
 
-USE tp_cookies;
+-- La table film est supprimée en premier : sa clé étrangère dépend de genre.
+DROP TABLE IF EXISTS r313_film;
+DROP TABLE IF EXISTS r313_genre;
 
-INSERT INTO genre (id, libelle) VALUES
+-- ---------------------------------------------------------------------------
+-- Genres
+-- ---------------------------------------------------------------------------
+CREATE TABLE r313_genre (
+    id      TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    libelle VARCHAR(40)      NOT NULL,
+
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_genre_libelle (libelle)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Films
+--
+-- Les index sur annee et note_moyenne ne sont pas décoratifs : le catalogue
+-- sera trié sur ces colonnes, et un tri sans index impose à MySQL de parcourir
+-- puis d'ordonner toute la table.
+--
+-- Le nom de la clé étrangère est préfixé lui aussi : contrairement aux index,
+-- qui n'ont à être uniques qu'au sein de leur table, une contrainte porte un
+-- nom unique dans toute la base.
+-- ---------------------------------------------------------------------------
+CREATE TABLE r313_film (
+    id            SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    titre         VARCHAR(160)      NOT NULL,
+    realisateur   VARCHAR(120)      NOT NULL,
+    annee         SMALLINT UNSIGNED NOT NULL,
+    duree_minutes SMALLINT UNSIGNED NOT NULL,
+    note_moyenne  DECIMAL(3,1)      NOT NULL,
+    genre_id      TINYINT UNSIGNED  NOT NULL,
+
+    PRIMARY KEY (id),
+    KEY idx_film_titre (titre),
+    KEY idx_film_annee (annee),
+    KEY idx_film_note  (note_moyenne),
+    KEY idx_film_genre (genre_id),
+
+    CONSTRAINT fk_r313_film_genre
+        FOREIGN KEY (genre_id) REFERENCES r313_genre (id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Jeu de données
+-- ---------------------------------------------------------------------------
+
+INSERT INTO r313_genre (id, libelle) VALUES
     (1, 'Animation'),
     (2, 'Aventure'),
     (3, 'Comédie'),
@@ -24,7 +84,7 @@ INSERT INTO genre (id, libelle) VALUES
     (7, 'Policier'),
     (8, 'Science-fiction');
 
-INSERT INTO film (titre, realisateur, annee, duree_minutes, note_moyenne, genre_id) VALUES
+INSERT INTO r313_film (titre, realisateur, annee, duree_minutes, note_moyenne, genre_id) VALUES
     ('2001, l''Odyssée de l''espace',            'Stanley Kubrick',        1968, 149, 8.9, 8),
     ('Alien',                                    'Ridley Scott',           1979, 117, 8.4, 6),
     ('Apocalypse Now',                           'Francis Ford Coppola',   1979, 147, 8.5, 5),
