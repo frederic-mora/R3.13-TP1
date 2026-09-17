@@ -8,7 +8,7 @@
  * document ne soit complet.
  */
 function zoneMessage() {
-    return document.getElementById('message');
+    return document.querySelector('#message');
 }
 
 export function afficherErreur(texte) {

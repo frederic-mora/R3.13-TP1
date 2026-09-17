@@ -16,7 +16,7 @@ import { afficherErreur, afficherSucces, effacerMessage } from './lib/message.js
  * décide : 200 si l'accès est accordé, 401 ou 403 sinon.
  */
 async function afficherStatistiques() {
-    const conteneur = document.getElementById('statistiques');
+    const conteneur = document.querySelector('#statistiques');
 
     try {
         const donnees = await chargerStatistiques();
@@ -74,7 +74,7 @@ async function tenterConnexion(login, motDePasse) {
 document.addEventListener('DOMContentLoaded', () => {
     initialiserBoutonTheme();
 
-    document.getElementById('connexion').replaceChildren(
+    document.querySelector('#connexion').replaceChildren(
         creerFormulaireConnexion({ surConnexion: tenterConnexion }),
     );
 

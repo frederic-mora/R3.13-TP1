@@ -18,9 +18,9 @@ import { afficherErreur, effacerMessage } from './lib/message.js';
  * Demande une page du catalogue et met à jour l'affichage.
  */
 async function afficherCatalogue(page = 1) {
-    const barreOutils = document.getElementById('barre-outils');
-    const grille      = document.getElementById('grille');
-    const pagination  = document.getElementById('pagination');
+    const barreOutils = document.querySelector('#barre-outils');
+    const grille      = document.querySelector('#grille');
+    const pagination  = document.querySelector('#pagination');
 
     try {
         effacerMessage();

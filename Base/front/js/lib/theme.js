@@ -26,7 +26,7 @@ function appliquer(theme) {
  * Branche le bouton de bascule présent dans l'en-tête des deux pages.
  */
 export function initialiserBoutonTheme() {
-    const bouton = document.getElementById('bouton-theme');
+    const bouton = document.querySelector('#bouton-theme');
 
     if (bouton === null) {
         return;
