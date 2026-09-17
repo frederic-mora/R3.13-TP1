@@ -5,17 +5,20 @@ declare(strict_types=1);
 /**
  * Configuration de l'application.
  *
- * Adaptez les identifiants à votre installation locale.
- * Sous XAMPP et WAMP, l'utilisateur par défaut est « root » sans mot de passe.
+ * Les quatre valeurs ci-dessous sont à compléter : ce sont les identifiants de
+ * VOTRE base de données, celle dans laquelle vous avez importé sql/import.sql.
+ * Tant qu'elles ne sont pas renseignées, le catalogue restera vide.
+ *
+ * Sous XAMPP ou WAMP, l'utilisateur par défaut est « root », sans mot de passe.
  */
 
 return [
     'bdd' => [
         'hote'        => 'localhost',
         'port'        => 3306,
-        'base'        => 'morap01',
-        'utilisateur' => 'morap01',
-        'motdepasse'  => 'morap01',
+        'base'        => 'a_completer',
+        'utilisateur' => 'a_completer',
+        'motdepasse'  => 'a_completer',
     ],
 
     // En développement, les erreurs sont détaillées dans la réponse JSON.

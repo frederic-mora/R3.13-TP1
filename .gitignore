@@ -1,0 +1,9 @@
+# Notes de préparation, à ne pas distribuer aux étudiants.
+CLAUDE.md
+
+# Fichiers d'environnement des éditeurs et systèmes
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
