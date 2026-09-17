@@ -2,7 +2,14 @@
  * Affichage des messages d'information et d'erreur, partagé par les deux pages.
  */
 
-const ELEMENT = () => document.getElementById('message');
+/**
+ * La zone de message, commune aux deux pages. Elle est cherchée à chaque appel
+ * plutôt que retenue une fois pour toutes : ce module est chargé avant que le
+ * document ne soit complet.
+ */
+function zoneMessage() {
+    return document.getElementById('message');
+}
 
 export function afficherErreur(texte) {
     afficher(texte, 'message--erreur');
@@ -13,7 +20,7 @@ export function afficherSucces(texte) {
 }
 
 export function effacerMessage() {
-    const element = ELEMENT();
+    const element = zoneMessage();
 
     if (element !== null) {
         element.hidden = true;
@@ -22,7 +29,7 @@ export function effacerMessage() {
 }
 
 function afficher(texte, modificateur) {
-    const element = ELEMENT();
+    const element = zoneMessage();
 
     if (element === null) {
         return;

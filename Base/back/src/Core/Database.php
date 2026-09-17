@@ -49,6 +49,10 @@ final class Database
                 'Connexion à la base impossible. Vérifiez back/config/config.php '
                 . 'et que la base « ' . $config['base'] . ' » a bien été importée. '
                 . '(' . $e->getMessage() . ')',
+                // « previous: » désigne le paramètre par son nom plutôt que par
+                // sa position. On saute ainsi le deuxième paramètre du
+                // constructeur (un code d'erreur dont nous n'avons pas l'usage)
+                // sans avoir à lui inventer une valeur.
                 previous: $e,
             );
         }

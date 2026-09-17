@@ -14,12 +14,24 @@ namespace App\Core;
  */
 final class Request
 {
-    private function __construct(
-        private readonly string $methode,
-        private readonly string $chemin,
-        private readonly array  $parametres,
-        private readonly array  $corps,
-    ) {
+    /** Méthode HTTP, en majuscules : GET, POST… */
+    private string $methode;
+
+    /** Chemin demandé, à partir de /api/. */
+    private string $chemin;
+
+    /** Paramètres de la chaîne de requête ($_GET). */
+    private array $parametres;
+
+    /** Corps de la requête, décodé depuis le JSON reçu. */
+    private array $corps;
+
+    private function __construct(string $methode, string $chemin, array $parametres, array $corps)
+    {
+        $this->methode    = $methode;
+        $this->chemin     = $chemin;
+        $this->parametres = $parametres;
+        $this->corps      = $corps;
     }
 
     /**
@@ -27,6 +39,10 @@ final class Request
      */
     public static function depuisGlobals(): self
     {
+        // Deux opérateurs voisins, à ne pas confondre :
+        //   ?? se déclenche si la valeur de gauche n'existe pas (ou vaut null) ;
+        //   ?: se déclenche si elle existe mais est « fausse » — ici parse_url()
+        //      renvoie false quand l'URL est inexploitable.
         $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
         // L'application est déployée dans un sous-dossier de htdocs, donc l'URL

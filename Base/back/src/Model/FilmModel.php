@@ -19,8 +19,12 @@ use PDO;
  */
 final class FilmModel
 {
-    public function __construct(private readonly PDO $pdo)
+    /** Connexion à la base, fournie à la construction. */
+    private PDO $pdo;
+
+    public function __construct(PDO $pdo)
     {
+        $this->pdo = $pdo;
     }
 
     /**
@@ -89,17 +93,22 @@ final class FilmModel
            ORDER BY nombre DESC, genre.libelle ASC'
         )->fetchAll();
 
+        // MySQL renvoie les nombres sous forme de chaînes. On les convertit
+        // ligne par ligne, pour que le JSON contienne bien des nombres.
+        $genres = [];
+
+        foreach ($parGenre as $ligne) {
+            $genres[] = [
+                'genre'  => $ligne['genre'],
+                'nombre' => (int) $ligne['nombre'],
+            ];
+        }
+
         return [
             'total'        => (int) $global['total'],
             'noteMoyenne'  => round((float) $global['note_moyenne'], 1),
             'dureeMoyenne' => (int) round((float) $global['duree_moyenne']),
-            'parGenre'     => array_map(
-                static fn (array $ligne): array => [
-                    'genre'  => $ligne['genre'],
-                    'nombre' => (int) $ligne['nombre'],
-                ],
-                $parGenre,
-            ),
+            'parGenre'     => $genres,
         ];
     }
 }

@@ -35,8 +35,12 @@ final class CatalogueController
 
     private const PAR_PAGE_AUTORISES = [12, 24, 48];
 
-    public function __construct(private readonly FilmModel $films)
+    /** Le modèle qui interroge la base, fourni à la construction. */
+    private FilmModel $films;
+
+    public function __construct(FilmModel $films)
     {
+        $this->films = $films;
     }
 
     public function index(Request $requete): void

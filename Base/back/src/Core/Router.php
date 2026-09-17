@@ -14,22 +14,33 @@ use RuntimeException;
  */
 final class Router
 {
+    /** Table des routes, telle que déclarée dans routes.php. */
+    private array $routes;
+
+    /** Instances de contrôleurs, indexées par nom de classe. */
+    private array $controleurs;
+
     /**
      * @param array<string, array{0:string, 1:string}> $routes
-     * @param array<string, object>                    $controleurs Instances indexées par nom de classe
+     * @param array<string, object>                    $controleurs
      */
-    public function __construct(
-        private readonly array $routes,
-        private readonly array $controleurs,
-    ) {
+    public function __construct(array $routes, array $controleurs)
+    {
+        $this->routes      = $routes;
+        $this->controleurs = $controleurs;
     }
 
     public function traiter(Request $requete): void
     {
-        foreach ($this->routes as $declaration => [$classe, $methode]) {
+        foreach ($this->routes as $declaration => $cible) {
             if (self::normaliser($declaration) !== $requete->signature()) {
                 continue;
             }
+
+            // $cible est le tableau déclaré dans routes.php :
+            // à l'indice 0 le nom de la classe, à l'indice 1 celui de la méthode.
+            $classe  = $cible[0];
+            $methode = $cible[1];
 
             $controleur = $this->controleurs[$classe] ?? null;
 
@@ -39,6 +50,11 @@ final class Router
                 );
             }
 
+            // Le nom de la méthode est dans une variable, et PHP appelle la
+            // méthode qui porte ce nom. Si $methode vaut 'index', la ligne
+            // ci-dessous revient exactement à écrire $controleur->index($requete).
+            // C'est ce qui permet à un routeur de fonctionner sans connaître à
+            // l'avance les contrôleurs qu'il servira.
             $controleur->$methode($requete);
             return;
         }

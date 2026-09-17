@@ -22,6 +22,13 @@ use App\Model\FilmModel;
 
 // --- Chargement automatique des classes ------------------------------------
 // App\Core\Router  ->  back/src/Core/Router.php
+//
+// Plutôt que d'écrire un require par classe, on confie à PHP la fonction
+// ci-dessous. PHP la gardera de côté et l'appellera LUI-MÊME, chaque fois qu'il
+// rencontrera un nom de classe qu'il ne connaît pas encore — en lui passant ce
+// nom en paramètre. À charge pour elle de trouver le fichier correspondant et
+// de l'inclure. Rien ici n'est exécuté maintenant : on prépare seulement ce qui
+// servira plus tard.
 spl_autoload_register(static function (string $classe): void {
     $prefixe = 'App\\';
 

@@ -12,6 +12,12 @@
 
 /**
  * Erreur renvoyée par l'API, avec son code de statut HTTP.
+ *
+ * C'est une erreur JavaScript ordinaire, à laquelle on ajoute un champ
+ * « statut ». L'intérêt : la page d'administration a besoin de distinguer un
+ * 401 d'un 403 ou d'un 404 pour afficher le bon message, et un message texte ne
+ * permettrait pas ce test. On la lève avec throw et on l'attrape avec catch,
+ * comme n'importe quelle autre erreur.
  */
 export class ErreurApi extends Error {
     constructor(message, statut) {
@@ -28,7 +34,9 @@ export class ErreurApi extends Error {
  * @param {{methode?: string, corps?: object}} options
  */
 export async function requeteJson(chemin, options = {}) {
-    const { methode = 'GET', corps = null } = options;
+    // Réglages de l'appel, avec leurs valeurs par défaut.
+    const methode = options.methode ?? 'GET';
+    const corps   = options.corps   ?? null;
 
     const parametres = {
         method:  methode,
@@ -50,7 +58,15 @@ export async function requeteJson(chemin, options = {}) {
     }
 
     if (!reponse.ok) {
-        throw new ErreurApi(donnees?.erreur ?? `Erreur ${reponse.status}`, reponse.status);
+        // L'API décrit ses erreurs dans un champ « erreur ». Si la réponse n'en
+        // contient pas, on se rabat sur le code de statut HTTP.
+        let message = `Erreur ${reponse.status}`;
+
+        if (donnees !== null && donnees.erreur) {
+            message = donnees.erreur;
+        }
+
+        throw new ErreurApi(message, reponse.status);
     }
 
     return donnees;

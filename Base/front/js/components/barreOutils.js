@@ -12,7 +12,11 @@ const TRIS = [
     { valeur: 'genre', libelle: 'Genre' },
 ];
 
-const PAR_PAGE = [12, 24, 48];
+const PAR_PAGE = [
+    { valeur: 12, libelle: '12 films' },
+    { valeur: 24, libelle: '24 films' },
+    { valeur: 48, libelle: '48 films' },
+];
 
 function creerSelect(identifiant, etiquette, options, valeurCourante, surChangement) {
     const conteneur = document.createElement('div');
@@ -56,7 +60,7 @@ export function creerBarreOutils(options) {
         creerSelect(
             'par-page',
             'Films par page',
-            PAR_PAGE.map((n) => ({ valeur: n, libelle: `${n} films` })),
+            PAR_PAGE,
             options.parPage,
             (valeur) => options.surParPage(Number(valeur)),
         ),
