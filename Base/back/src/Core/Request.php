@@ -45,8 +45,8 @@ final class Request
         //      renvoie false quand l'URL est inexploitable.
         $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-        // L'application est déployée dans un sous-dossier de htdocs, donc l'URL
-        // reçue ressemble à /Base/api/films. On ne conserve que la partie
+        // L'application est déployée dans un sous-dossier, donc l'URL reçue
+        // ressemble à /~votre_login/Base/api/films. On ne conserve que la partie
         // qui nous concerne, à partir du marqueur /api/.
         $position = strpos($uri, '/api/');
         $chemin   = $position === false ? '/' : substr($uri, $position);

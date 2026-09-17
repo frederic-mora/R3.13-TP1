@@ -9,7 +9,9 @@ declare(strict_types=1);
  * VOTRE base de données, celle dans laquelle vous avez importé sql/import.sql.
  * Tant qu'elles ne sont pas renseignées, le catalogue restera vide.
  *
- * Sous XAMPP ou WAMP, l'utilisateur par défaut est « root », sans mot de passe.
+ * Sur le serveur de l'IUT, ce sont les identifiants MySQL qui vous ont été
+ * communiqués, et « hote » reste « localhost » : la base est sur la même machine
+ * que le serveur web.
  */
 
 return [

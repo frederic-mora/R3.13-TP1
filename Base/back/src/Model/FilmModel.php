@@ -59,14 +59,14 @@ final class FilmModel
               ORDER BY {$ordre}, film.id
                  LIMIT :limite OFFSET :decalage";
 
-        $requete = $this->pdo->prepare($sql);
+        $requetePreparee = $this->pdo->prepare($sql);
 
         // Les valeurs, elles, sont bien liées : c'est le rôle des paramètres.
-        $requete->bindValue(':limite',   $limite,   PDO::PARAM_INT);
-        $requete->bindValue(':decalage', $decalage, PDO::PARAM_INT);
-        $requete->execute();
+        $requetePreparee->bindValue(':limite',   $limite,   PDO::PARAM_INT);
+        $requetePreparee->bindValue(':decalage', $decalage, PDO::PARAM_INT);
+        $requetePreparee->execute();
 
-        return $requete->fetchAll();
+        return $requetePreparee->fetchAll();
     }
 
     /**

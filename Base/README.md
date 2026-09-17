@@ -6,7 +6,9 @@ la séance sont signalées par des commentaires `TP · Phase N`.
 
 ## Installation
 
-1. Copiez le dossier `Base/` dans `htdocs` (XAMPP) ou `www` (WAMP).
+1. Déposez le dossier `Base/` dans votre espace web personnel sur
+   `mmi.unilim.fr`. Le projet sera servi à l'adresse
+   `https://mmi.unilim.fr/~votre_login/Base/`.
 2. Importez `sql/import.sql` **dans votre base existante**, depuis phpMyAdmin :
    sélectionnez votre base dans la colonne de gauche, puis ouvrez l'onglet
    « Importer ».
@@ -17,16 +19,16 @@ la séance sont signalées par des commentaires `TP · Phase N`.
 
 3. Renseignez le nom de votre base et vos identifiants dans
    `back/config/config.php`.
-4. Ouvrez <http://localhost/Base/>. Vous devez voir une grille de douze
-   films.
+4. Ouvrez `https://mmi.unilim.fr/~votre_login/Base/`. Vous devez voir une
+   grille de douze films.
 
 ## Si ça ne marche pas
 
 | Symptôme | Cause probable |
 |---|---|
-| Un listing de dossiers au lieu de l'application | `mod_rewrite` désactivé, ou `AllowOverride All` absent |
+| Un listing de dossiers, ou une erreur 404 sur la racine | le `.htaccess` n'a pas été déposé avec le reste |
 | « Impossible de charger le catalogue » | nom de base ou identifiants de `config.php`, ou tables non importées |
-| Page blanche, erreurs de module dans la console | le projet n'est pas servi par Apache, mais ouvert en `file://` |
+| Page blanche, erreurs de module dans la console | la page a été ouverte en `file://` au lieu d'être servie par le serveur |
 | Accents transformés en `ComÃ©die` | tables importées avant l'ajout de `SET NAMES utf8mb4` : réimportez |
 
 ## Organisation

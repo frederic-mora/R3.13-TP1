@@ -1,7 +1,8 @@
 # ---------------------------------------------------------------------------
 # Aiguillage principal du projet.
 #
-# Le projet est déposé dans htdocs/ et accessible à http://localhost/Base/
+# Le projet est déposé dans un espace web personnel et accessible à
+# https://mmi.unilim.fr/~votre_login/Base/
 # Ce fichier décide, pour chaque requête, si elle relève du front ou du back.
 # ---------------------------------------------------------------------------
 
