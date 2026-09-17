@@ -1,5 +1,10 @@
 /* ---------------------------------------------------------------------------
    Mise en forme de l'application.
+
+   Parti pris : sobriété. Pas d'aplat de couleur, pas d'ombre portée marquée.
+   Les blocs sont délimités par une bordure d'un pixel, la hiérarchie est
+   portée par la taille du texte et par le contraste entre --texte et
+   --texte-doux.
    --------------------------------------------------------------------------- */
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -10,13 +15,21 @@ body {
     color: var(--texte);
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     font-size: 16px;
-    line-height: 1.55;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Un seul anneau de focus pour toute l'application, visible uniquement au
+   clavier : :focus-visible ne se déclenche pas sur un clic de souris. */
+:where(a, button, select, input):focus-visible {
+    outline: 2px solid var(--anneau);
+    outline-offset: 2px;
 }
 
 /* --- En-tête ------------------------------------------------------------- */
 
 .entete {
-    background: var(--surface);
+    background: var(--fond);
     border-bottom: 1px solid var(--bordure);
     position: sticky;
     top: 0;
@@ -26,7 +39,7 @@ body {
 .entete__contenu {
     max-width: 68rem;
     margin: 0 auto;
-    padding: .75rem 1.25rem;
+    padding: .75rem 1.5rem;
     display: flex;
     align-items: center;
     gap: 1.5rem;
@@ -34,59 +47,72 @@ body {
 }
 
 .logo {
-    font-weight: 700;
-    font-size: 1.05rem;
+    font-weight: 600;
+    font-size: .95rem;
     letter-spacing: -.01em;
     color: var(--texte);
     text-decoration: none;
 }
 
-.nav { display: flex; gap: 1rem; margin-right: auto; }
+.nav { display: flex; gap: 1.25rem; margin-right: auto; }
 
+/* L'onglet actif se distingue par la couleur et la graisse, sans soulignement :
+   c'est le contraste texte / texte-doux qui porte l'information. */
 .nav__lien {
     color: var(--texte-doux);
     text-decoration: none;
-    font-size: .92rem;
-    padding: .25rem 0;
-    border-bottom: 2px solid transparent;
+    font-size: .875rem;
+    transition: color .15s;
 }
 
 .nav__lien:hover { color: var(--texte); }
 
 .nav__lien--actif {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-    font-weight: 600;
+    color: var(--texte);
+    font-weight: 500;
 }
-
-.bouton-theme {
-    font: inherit;
-    font-size: .85rem;
-    padding: .3rem .7rem;
-    border: 1px solid var(--bordure);
-    border-radius: 999px;
-    background: var(--surface-creuse);
-    color: var(--texte-doux);
-    cursor: pointer;
-}
-
-.bouton-theme:hover { color: var(--texte); }
 
 /* --- Contenu ------------------------------------------------------------- */
 
 .contenu {
     max-width: 68rem;
     margin: 0 auto;
-    padding: 2rem 1.25rem 4rem;
+    padding: 2.5rem 1.5rem 4rem;
 }
 
 .contenu--etroit { max-width: 40rem; }
 
 .titre-page {
-    font-size: 1.7rem;
-    margin: 0 0 1.25rem;
+    font-size: 1.5rem;
+    font-weight: 600;
     letter-spacing: -.02em;
+    margin: 0 0 1.5rem;
 }
+
+/* --- Contrôles de formulaire --------------------------------------------- */
+
+.champ { display: flex; flex-direction: column; gap: .5rem; }
+
+.champ__etiquette {
+    font-size: .875rem;
+    font-weight: 500;
+    color: var(--texte);
+}
+
+.champ__controle {
+    font: inherit;
+    font-size: .875rem;
+    height: 2.25rem;
+    padding: 0 .75rem;
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-controle);
+    background: var(--surface);
+    color: var(--texte);
+    min-width: 11rem;
+    transition: border-color .15s;
+}
+
+.champ__controle:hover { border-color: var(--texte-doux); }
 
 /* --- Barre d'outils ------------------------------------------------------ */
 
@@ -94,38 +120,17 @@ body {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end;
-    gap: 1.25rem;
-    padding: .9rem 1.1rem;
+    gap: 1rem;
+    padding: 1rem;
     margin-bottom: 1.5rem;
     background: var(--surface);
     border: 1px solid var(--bordure);
     border-radius: var(--rayon);
 }
 
-.champ { display: flex; flex-direction: column; gap: .25rem; }
-
-.champ__etiquette {
-    font-size: .75rem;
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    color: var(--texte-doux);
-    font-weight: 600;
-}
-
-.champ__controle {
-    font: inherit;
-    font-size: .92rem;
-    padding: .4rem .6rem;
-    border: 1px solid var(--bordure);
-    border-radius: 6px;
-    background: var(--surface-creuse);
-    color: var(--texte);
-    min-width: 11rem;
-}
-
 .barre-outils__resultat {
     margin-left: auto;
-    font-size: .85rem;
+    font-size: .875rem;
     color: var(--texte-doux);
 }
 
@@ -134,7 +139,7 @@ body {
 .grille {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1.1rem;
+    gap: 1rem;
 }
 
 .carte {
@@ -145,57 +150,116 @@ body {
     box-shadow: var(--ombre);
     display: flex;
     flex-direction: column;
+    transition: border-color .15s;
 }
 
+.carte:hover { border-color: var(--texte-doux); }
+
 /* La teinte est calculée à partir du titre, dans components/carteFilm.js.
-   Aucune image n'est chargée : le squelette ne dépend d'aucun fichier externe. */
+   Aucune image n'est chargée : le squelette ne dépend d'aucun fichier externe.
+   La saturation reste basse pour que le bandeau reste un fond, pas un motif. */
 .carte__visuel {
-    height: 96px;
+    height: 5rem;
     background: linear-gradient(
-        135deg,
-        hsl(var(--teinte, 200) 40% var(--carte-clair)),
-        hsl(calc(var(--teinte, 200) + 35) 45% var(--carte-sombre))
+        160deg,
+        hsl(var(--teinte, 200) var(--carte-saturation) var(--carte-clair)),
+        hsl(calc(var(--teinte, 200) + 25) var(--carte-saturation) var(--carte-sombre))
     );
+    border-bottom: 1px solid var(--bordure);
     display: flex;
-    align-items: flex-end;
-    padding: .5rem .7rem;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: .5rem;
 }
 
 .carte__genre {
-    font-size: .7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    color: #fff;
-    background: rgba(0, 0, 0, .35);
-    padding: .15rem .45rem;
-    border-radius: 4px;
+    font-size: .6875rem;
+    font-weight: 500;
+    color: var(--texte-doux);
+    background: var(--surface);
+    border: 1px solid var(--bordure);
+    padding: .0625rem .375rem;
+    border-radius: 999px;
 }
 
-.carte__corps { padding: .75rem .85rem 1rem; flex: 1; }
+.carte__corps { padding: .875rem; flex: 1; }
 
 .carte__titre {
-    font-size: .98rem;
-    font-weight: 700;
-    margin: 0 0 .2rem;
-    line-height: 1.3;
+    font-size: .9375rem;
+    font-weight: 500;
+    letter-spacing: -.01em;
+    margin: 0 0 .125rem;
+    line-height: 1.35;
 }
 
-.carte__realisateur { font-size: .85rem; color: var(--texte-doux); margin: 0 0 .6rem; }
+.carte__realisateur {
+    font-size: .8125rem;
+    color: var(--texte-doux);
+    margin: 0 0 .75rem;
+}
 
 .carte__details {
     display: flex;
-    gap: .6rem;
-    font-size: .78rem;
-    color: var(--texte-doux);
+    gap: .625rem;
     align-items: center;
+    font-size: .8125rem;
+    color: var(--texte-doux);
 }
 
 .carte__note {
-    font-weight: 700;
-    color: var(--accent);
-    font-size: .88rem;
+    font-weight: 600;
+    color: var(--texte);
 }
+
+/* --- Boutons ------------------------------------------------------------- */
+
+.bouton {
+    font: inherit;
+    font-size: .875rem;
+    font-weight: 500;
+    height: 2.25rem;
+    padding: 0 1rem;
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-controle);
+    background: var(--surface);
+    color: var(--texte);
+    cursor: pointer;
+    transition: background-color .15s, border-color .15s;
+}
+
+.bouton:hover:not(:disabled) { background: var(--surface-creuse); }
+
+.bouton:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.bouton--principal {
+    background: var(--accent);
+    color: var(--accent-texte);
+    border-color: var(--accent);
+}
+
+.bouton--principal:hover:not(:disabled) {
+    background: var(--accent);
+    opacity: .9;
+}
+
+.bouton-theme {
+    font: inherit;
+    font-size: .875rem;
+    font-weight: 500;
+    height: 2rem;
+    padding: 0 .75rem;
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-controle);
+    background: var(--surface);
+    color: var(--texte);
+    cursor: pointer;
+    transition: background-color .15s;
+}
+
+.bouton-theme:hover { background: var(--surface-creuse); }
 
 /* --- Pagination ---------------------------------------------------------- */
 
@@ -204,79 +268,85 @@ body {
     justify-content: center;
     align-items: center;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: 2.5rem;
 }
 
-.bouton {
-    font: inherit;
-    font-size: .9rem;
-    padding: .45rem 1rem;
-    border: 1px solid var(--bordure);
-    border-radius: 6px;
-    background: var(--surface);
-    color: var(--texte);
-    cursor: pointer;
+.pagination__position {
+    font-size: .875rem;
+    color: var(--texte-doux);
 }
-
-.bouton:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-.bouton:disabled { opacity: .4; cursor: not-allowed; }
-
-.bouton--principal {
-    background: var(--accent);
-    color: var(--accent-texte);
-    border-color: var(--accent);
-    font-weight: 600;
-}
-
-.pagination__position { font-size: .88rem; color: var(--texte-doux); }
 
 /* --- Messages ------------------------------------------------------------ */
 
 .message {
-    padding: .7rem 1rem;
-    border-radius: 6px;
+    padding: .75rem 1rem;
+    border-radius: var(--rayon-controle);
     border: 1px solid var(--bordure);
     background: var(--surface);
-    font-size: .92rem;
-    margin: 0 0 1.25rem;
+    font-size: .875rem;
+    margin: 0 0 1.5rem;
 }
 
 .message--erreur { border-color: var(--alerte); color: var(--alerte); }
 .message--succes { border-color: var(--succes); color: var(--succes); }
 
-/* --- Formulaire et statistiques ------------------------------------------ */
+/* --- Panneaux, formulaire et statistiques -------------------------------- */
 
 .panneau {
     background: var(--surface);
     border: 1px solid var(--bordure);
     border-radius: var(--rayon);
-    padding: 1.25rem;
+    box-shadow: var(--ombre);
+    padding: 1.5rem;
     margin-bottom: 1.5rem;
 }
 
-.panneau__titre { margin: 0 0 1rem; font-size: 1.05rem; }
-
-.formulaire { display: flex; flex-direction: column; gap: .9rem; }
-
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
-
-.stat {
-    background: var(--surface-creuse);
-    border-radius: 8px;
-    padding: .9rem 1rem;
+.panneau__titre {
+    margin: 0 0 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
 }
 
-.stat__valeur { font-size: 1.5rem; font-weight: 700; line-height: 1.1; }
-.stat__legende { font-size: .78rem; color: var(--texte-doux); text-transform: uppercase; letter-spacing: .06em; }
+.formulaire { display: flex; flex-direction: column; gap: 1rem; }
+.formulaire .bouton { align-self: flex-start; }
 
-.liste-genres { list-style: none; padding: 0; margin: 1rem 0 0; }
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+}
+
+.stat {
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-controle);
+    padding: 1rem;
+}
+
+.stat__valeur {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+}
+
+.stat__legende {
+    font-size: .8125rem;
+    color: var(--texte-doux);
+}
+
+.liste-genres {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 0;
+}
 
 .liste-genres li {
     display: flex;
     justify-content: space-between;
-    padding: .35rem 0;
+    padding: .5rem 0;
     border-bottom: 1px solid var(--bordure);
-    font-size: .9rem;
+    font-size: .875rem;
 }
 
 .liste-genres li:last-child { border-bottom: none; }

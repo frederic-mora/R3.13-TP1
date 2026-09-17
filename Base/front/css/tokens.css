@@ -4,42 +4,64 @@
    Le thème clair est la valeur par défaut. Le thème sombre est obtenu en
    ajoutant la classe « theme-dark » sur l'élément <html>, ce que fait
    js/lib/theme-init.js au chargement.
+
+   La palette est volontairement neutre : une seule couleur d'accent, presque
+   noire en clair et presque blanche en sombre. Ce sont les bordures et les
+   nuances de gris qui structurent la page, pas la couleur.
    --------------------------------------------------------------------------- */
 
 :root {
-    --fond:            #f6f4f0;
-    --surface:         #ffffff;
-    --surface-creuse:  #eeeae3;
-    --texte:           #22201d;
-    --texte-doux:      #6d6862;
-    --bordure:         #ddd8d0;
-    --accent:          #0f6f6a;
-    --accent-texte:    #ffffff;
-    --alerte:          #b42318;
-    --succes:          #1a7f4b;
+    /* Fonds et texte */
+    --fond:           hsl(0 0% 100%);
+    --surface:        hsl(0 0% 100%);
+    --surface-creuse: hsl(240 5% 96%);
+    --texte:          hsl(240 10% 4%);
+    --texte-doux:     hsl(240 4% 46%);
+    --bordure:        hsl(240 6% 90%);
 
-    --ombre:  0 1px 2px rgba(0, 0, 0, .05), 0 6px 16px rgba(0, 0, 0, .05);
-    --rayon:  10px;
+    /* Accent : sert aux éléments actifs et au bouton principal. */
+    --accent:         hsl(240 6% 10%);
+    --accent-texte:   hsl(0 0% 98%);
 
-    /* Luminosité des visuels de carte, ajustée selon le thème. */
-    --carte-clair:  58%;
-    --carte-sombre: 38%;
+    /* Anneau de focus, visible au clavier. */
+    --anneau:         hsl(240 5% 65%);
+
+    /* États */
+    --alerte:         hsl(0 72% 42%);
+    --succes:         hsl(142 70% 29%);
+
+    /* Une ombre unique, très discrète : le relief vient des bordures. */
+    --ombre: 0 1px 2px rgb(0 0 0 / .05);
+
+    /* Deux rayons seulement : les blocs, et les contrôles. */
+    --rayon:           .5rem;
+    --rayon-controle:  .375rem;
+
+    /* Teinte des visuels de carte — voir .carte__visuel dans app.css. */
+    --carte-saturation: 28%;
+    --carte-clair:      96%;
+    --carte-sombre:     91%;
 }
 
 .theme-dark {
-    --fond:            #16181b;
-    --surface:         #1d2024;
-    --surface-creuse:  #24282d;
-    --texte:           #e4e2de;
-    --texte-doux:      #9a958d;
-    --bordure:         #32373d;
-    --accent:          #4ec9b8;
-    --accent-texte:    #10221f;
-    --alerte:          #f08b82;
-    --succes:          #6fce9a;
+    --fond:           hsl(240 10% 4%);
+    --surface:        hsl(240 10% 4%);
+    --surface-creuse: hsl(240 4% 16%);
+    --texte:          hsl(0 0% 98%);
+    --texte-doux:     hsl(240 5% 65%);
+    --bordure:        hsl(240 4% 16%);
 
-    --ombre:  0 1px 2px rgba(0, 0, 0, .3), 0 6px 16px rgba(0, 0, 0, .25);
+    --accent:         hsl(0 0% 98%);
+    --accent-texte:   hsl(240 6% 10%);
 
-    --carte-clair:  42%;
-    --carte-sombre: 26%;
+    --anneau:         hsl(240 5% 84%);
+
+    --alerte:         hsl(0 70% 65%);
+    --succes:         hsl(142 55% 55%);
+
+    --ombre: 0 1px 2px rgb(0 0 0 / .4);
+
+    --carte-saturation: 18%;
+    --carte-clair:      17%;
+    --carte-sombre:     12%;
 }
