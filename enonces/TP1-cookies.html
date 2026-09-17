@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TP 1 — Les cookies HTTP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fbfaf8;
+  --surface: #ffffff;
+  --surface-2: #f3f1ed;
+  --text: #22201d;
+  --muted: #6d6862;
+  --border: #dedad3;
+  --border-strong: #c7c2b9;
+  --accent: #0f6f6a;
+  --accent-soft: #e2efee;
+  --obs: #1f6feb;
+  --obs-bg: #e9f1fd;
+  --redige: #9a6700;
+  --redige-bg: #fdf3dc;
+  --alerte: #b42318;
+  --alerte-bg: #fdeceb;
+  --demo: #6b4ba8;
+  --demo-bg: #f0eafa;
+  --code-bg: #f6f4f0;
+
+  --c-comment: #8a8378;
+  --c-keyword: #9a3fa8;
+  --c-string: #3f7d3a;
+  --c-number: #9a6600;
+  --c-title: #1f5fd0;
+  --c-var: #c0392b;
+  --c-builtin: #a06a00;
+  --c-meta: #1f5fd0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16181b;
+    --surface: #1d2024;
+    --surface-2: #24282d;
+    --text: #e4e2de;
+    --muted: #9a958d;
+    --border: #32373d;
+    --border-strong: #454b52;
+    --accent: #4ec9b8;
+    --accent-soft: #1b2e2c;
+    --obs: #6ba7f5;
+    --obs-bg: #17222f;
+    --redige: #e0b341;
+    --redige-bg: #2b2415;
+    --alerte: #f08b82;
+    --alerte-bg: #2e1a19;
+    --demo: #b79ce8;
+    --demo-bg: #241d33;
+    --code-bg: #14161a;
+
+    --c-comment: #6b7785;
+    --c-keyword: #c678dd;
+    --c-string: #98c379;
+    --c-number: #d19a66;
+    --c-title: #61afef;
+    --c-var: #e06c75;
+    --c-builtin: #e5c07b;
+    --c-meta: #61afef;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #16181b;
+  --surface: #1d2024;
+  --surface-2: #24282d;
+  --text: #e4e2de;
+  --muted: #9a958d;
+  --border: #32373d;
+  --border-strong: #454b52;
+  --accent: #4ec9b8;
+  --accent-soft: #1b2e2c;
+  --obs: #6ba7f5;
+  --obs-bg: #17222f;
+  --redige: #e0b341;
+  --redige-bg: #2b2415;
+  --alerte: #f08b82;
+  --alerte-bg: #2e1a19;
+  --demo: #b79ce8;
+  --demo-bg: #241d33;
+  --code-bg: #14161a;
+
+  --c-comment: #6b7785;
+  --c-keyword: #c678dd;
+  --c-string: #98c379;
+  --c-number: #d19a66;
+  --c-title: #61afef;
+  --c-var: #e06c75;
+  --c-builtin: #e5c07b;
+  --c-meta: #61afef;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-text-size-adjust: 100%;
+}
+
+.page {
+  max-width: 54rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 6rem;
+}
+
+.entete {
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+.surtitre {
+  font-size: .78rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 0 0 .5rem;
+}
+h1 {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: clamp(1.9rem, 5vw, 2.7rem);
+  line-height: 1.15;
+  margin: 0 0 .75rem;
+  letter-spacing: -.01em;
+}
+.chapeau {
+  font-size: 1.08rem;
+  color: var(--muted);
+  margin: 0 0 1.25rem;
+  max-width: 44rem;
+}
+.meta { display: flex; flex-wrap: wrap; gap: .5rem; }
+.tag {
+  font-size: .8rem;
+  font-weight: 600;
+  padding: .25rem .65rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+h2 {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 1.6rem;
+  line-height: 1.25;
+  margin: 3.25rem 0 .35rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--border);
+  letter-spacing: -.01em;
+}
+h2:first-of-type { border-top: none; padding-top: 0; }
+h2 .num {
+  display: block;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: .78rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: .3rem;
+}
+h3 { font-size: 1.1rem; font-weight: 700; margin: 2rem 0 .5rem; }
+h4 {
+  font-size: .95rem;
+  font-weight: 700;
+  margin: 1.5rem 0 .4rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.duree { font-size: .82rem; color: var(--muted); font-weight: 600; margin: 0 0 1.25rem; }
+.objectif {
+  font-style: italic;
+  color: var(--muted);
+  margin: 0 0 1.25rem;
+  padding-left: .9rem;
+  border-left: 3px solid var(--border-strong);
+}
+
+p { margin: 0 0 1rem; }
+ul, ol { margin: 0 0 1rem; padding-left: 1.4rem; }
+li { margin-bottom: .45rem; }
+li > ul, li > ol { margin-top: .45rem; }
+strong { font-weight: 700; }
+a { color: var(--accent); }
+
+.opt {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--demo);
+  background: var(--demo-bg);
+  border-radius: 4px;
+  padding: .1rem .4rem;
+  vertical-align: middle;
+  margin-left: .4rem;
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: .9rem 1rem;
+  overflow-x: auto;
+  margin: 0 0 1.1rem;
+  font-size: .855rem;
+  line-height: 1.6;
+}
+code { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+p code, li code, td code, th code {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .08em .35em;
+  font-size: .86em;
+  white-space: nowrap;
+}
+.fichier {
+  font-family: "JetBrains Mono", monospace;
+  font-size: .74rem;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  padding: .35rem .8rem;
+  display: inline-block;
+  margin-bottom: 0;
+}
+.fichier + pre { border-radius: 0 8px 8px 8px; margin-top: 0; }
+pre.http { color: var(--muted); }
+pre.http b { color: var(--text); font-weight: 700; }
+
+.hljs-comment, .hljs-quote { color: var(--c-comment); font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-type { color: var(--c-keyword); }
+.hljs-string, .hljs-regexp, .hljs-addition { color: var(--c-string); }
+.hljs-number, .hljs-symbol, .hljs-bullet { color: var(--c-number); }
+.hljs-title, .hljs-section, .hljs-title.function_ { color: var(--c-title); }
+.hljs-variable, .hljs-template-variable, .hljs-attr, .hljs-attribute, .hljs-name, .hljs-tag { color: var(--c-var); }
+.hljs-built_in, .hljs-class .hljs-title, .hljs-params { color: var(--c-builtin); }
+.hljs-meta { color: var(--c-meta); }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 700; }
+
+.box {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border-strong);
+  border-radius: 6px;
+  padding: .9rem 1.1rem;
+  margin: 0 0 1.2rem;
+  background: var(--surface);
+}
+.box > :last-child { margin-bottom: 0; }
+.box .titre {
+  font-size: .74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin: 0 0 .5rem;
+}
+.box.obs { border-left-color: var(--obs); background: var(--obs-bg); }
+.box.obs .titre { color: var(--obs); }
+.box.redige { border-left-color: var(--redige); background: var(--redige-bg); }
+.box.redige .titre { color: var(--redige); }
+.box.alerte { border-left-color: var(--alerte); background: var(--alerte-bg); }
+.box.alerte .titre { color: var(--alerte); }
+.box.demo { border-left-color: var(--demo); background: var(--demo-bg); }
+.box.demo .titre { color: var(--demo); }
+.box.info { border-left-color: var(--accent); background: var(--accent-soft); }
+.box.info .titre { color: var(--accent); }
+.box ol, .box ul { padding-left: 1.2rem; }
+
+.tableau { overflow-x: auto; margin: 0 0 1.2rem; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; min-width: 34rem; }
+th, td { text-align: left; padding: .55rem .7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+thead th {
+  font-size: .76rem;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  border-bottom: 2px solid var(--border-strong);
+}
+tbody tr:last-child td { border-bottom: none; }
+
+.sommaire {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.1rem 1.3rem;
+  margin: 0 0 2.5rem;
+}
+.sommaire .titre {
+  font-size: .74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin-bottom: .6rem;
+}
+.sommaire ol { margin: 0; padding-left: 1.3rem; }
+.sommaire li { margin-bottom: .2rem; }
+.sommaire a { text-decoration: none; }
+.sommaire a:hover { text-decoration: underline; }
+.sommaire .t { color: var(--muted); font-size: .85em; }
+
+footer {
+  margin-top: 4rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+@media print {
+  body { background: #fff; font-size: 11pt; }
+  .page { max-width: none; padding: 0; }
+  h2 { page-break-after: avoid; }
+  pre, .box, table { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="entete">
+  <p class="surtitre">R3.13 — Développement Web · Travaux pratiques</p>
+  <h1>TP 1 — Les cookies HTTP</h1>
+  <p class="chapeau">Comment un serveur qui ne se souvient de rien parvient-il malgré tout à vous reconnaître ? Ce TP répond à la question, puis montre pourquoi la réponse ne suffit pas.</p>
+  <div class="meta">
+    <span class="tag">Durée : 2 h</span>
+    <span class="tag">PHP · JavaScript · HTTP</span>
+    <span class="tag">Travail individuel</span>
+    <span class="tag">Rendu en fin de séance</span>
+  </div>
+</header>
+
+<div class="sommaire">
+  <p class="titre">Déroulé de la séance</p>
+  <ol>
+    <li><a href="#p0">L'amnésie du serveur</a> <span class="t">— 10 min</span></li>
+    <li><a href="#p1">Un cookie n'est qu'un en-tête HTTP</a> <span class="t">— 20 min</span></li>
+    <li><a href="#p2">Mémoriser les préférences, et le piège du décalage</a> <span class="t">— 15 min</span></li>
+    <li><a href="#p3">Les attributs du cookie</a> <span class="t">— 25 min</span></li>
+    <li><a href="#p4">Cookie, localStorage ou base de données ?</a> <span class="t">— 25 min</span></li>
+    <li><a href="#p5">Le cookie de trop</a> <span class="t">— 20 min</span></li>
+    <li><a href="#p6">Synthèse et rendu</a> <span class="t">— 5 min</span></li>
+  </ol>
+</div>
+
+<h3>Objectifs</h3>
+<p>À l'issue de ce TP, vous devez être capable de :</p>
+<ul>
+  <li>expliquer en quoi le protocole HTTP est <strong>sans état</strong>, et ce que cela implique pour une application web ;</li>
+  <li>lire et interpréter les en-têtes <code>Set-Cookie</code> et <code>Cookie</code> dans les outils de développement ;</li>
+  <li>poser, lire, modifier et supprimer un cookie en PHP ;</li>
+  <li>choisir les attributs d'un cookie (<code>expires</code>, <code>path</code>, <code>httponly</code>, <code>secure</code>, <code>samesite</code>) en fonction de l'usage visé ;</li>
+  <li>arbitrer entre cookie, <code>localStorage</code> et base de données pour stocker une information ;</li>
+  <li>justifier pourquoi une information de confiance ne peut jamais reposer sur un cookie.</li>
+</ul>
+
+<h3>Mise en place</h3>
+<ol>
+  <li>Récupérez le squelette de départ et déposez le dossier <code>Base/</code> dans votre espace web personnel sur <code>mmi.unilim.fr</code>.</li>
+  <li>Dans phpMyAdmin, <strong>sélectionnez votre base</strong> dans la colonne de gauche, puis importez le fichier <code>sql/import.sql</code> depuis l'onglet <em>Importer</em>. Le script ne crée aucune base : il ajoute deux tables, <code>r313_film</code> et <code>r313_genre</code>, et les remplit. Le préfixe <code>r313_</code> évite tout conflit avec ce que votre base contient déjà.</li>
+  <li>Ouvrez <code>back/config/config.php</code> et renseignez le nom de votre base ainsi que vos identifiants MySQL. Les valeurs livrées valent <code>a_completer</code> : tant qu'elles n'ont pas été remplacées, l'application affichera une erreur de connexion.</li>
+</ol>
+<p>Ouvrez ensuite l'application à l'adresse <code>https://mmi.unilim.fr/~votre_login/Base/</code>. Vous devez voir une grille de douze films. Si ce n'est pas le cas, la section « Si ça ne marche pas » du <code>README.md</code> couvre les quatre causes habituelles.</p>
+
+<div class="box info">
+  <p class="titre">Votre adresse de travail</p>
+  <p>Notez-la, elle servira tout au long du TP : <code>https://mmi.unilim.fr/~votre_login/Base/</code>, où <code>votre_login</code> est votre identifiant IUT. Deux conséquences y sont attachées, et elles reviendront en phase 3.</p>
+  <ul>
+    <li>Le serveur est en <strong>HTTPS</strong>. Les cookies que vous poserez voyageront donc sur une connexion chiffrée.</li>
+    <li>Vous partagez le domaine <code>mmi.unilim.fr</code> avec <strong>toute la promotion</strong>. Chaque étudiant a son espace <code>~login</code>, mais c'est le même domaine pour tout le monde — et un cookie appartient à un domaine.</li>
+  </ul>
+</div>
+
+<div class="box info">
+  <p class="titre">L'application</p>
+  <p>Un catalogue de 60 films. Le front est constitué de deux pages statiques dans <code>front/</code>. Le back, dans <code>back/</code>, est une API qui ne renvoie que du JSON, organisée en trois couches : routage, contrôleur, modèle.</p>
+  <p>Vous ne modifierez que trois fichiers, tous côté back. Ils sont signalés par des commentaires <code>TP · Phase N</code>. Tout le reste fonctionne et n'a pas à être touché.</p>
+</div>
+
+<p>Gardez les <strong>outils de développement ouverts en permanence</strong>, onglets <em>Réseau</em> et <em>Application</em>. Ce TP consiste autant à observer qu'à coder : à chaque étape, regardez les en-têtes HTTP <em>avant</em> d'écrire la moindre ligne.</p>
+
+
+<h2 id="p0"><span class="num">Phase 0</span>L'amnésie du serveur</h2>
+<p class="duree">10 minutes</p>
+<p class="objectif">Objectif : constater par vous-même le problème que les cookies viennent résoudre.</p>
+
+<h4>Étape 0.1 — Le catalogue oublie tout</h4>
+<ol>
+  <li>Dans la barre de réglages, choisissez le tri <em>Note (meilleurs d'abord)</em> et <em>48 films par page</em>. L'affichage se met à jour : le mécanisme fonctionne.</li>
+  <li>Rechargez la page (<code>F5</code>). Retour au tri par titre et à douze films.</li>
+  <li>Recommencez deux ou trois fois. Le résultat est toujours le même.</li>
+</ol>
+
+<p>C'est pourtant un comportement que vous connaissez : une boutique en ligne, un back-office, une médiathèque se souviennent du nombre d'articles que vous affichez par page, d'une visite à l'autre.</p>
+
+<h4>Étape 0.2 — Pourquoi</h4>
+<p>Le fichier suivant est appelé à chaque chargement de la page :</p>
+
+<p class="fichier">back/src/Controller/PreferencesController.php</p>
+<pre><code class="language-php">public function show(): void
+{
+    // TP · Phases 0 à 3 — Les préférences sont ici codées en dur.
+    $tri     = self::TRI_DEFAUT;      // 'titre'
+    $parPage = self::PAR_PAGE_DEFAUT; // 12
+
+    Response::json(['tri' =&gt; $tri, 'parPage' =&gt; $parPage]);
+}</code></pre>
+
+<p>La méthode <code>update()</code>, appelée quand vous changez un réglage, valide correctement ce qu'elle reçoit — puis ne le conserve pas.</p>
+
+<div class="box obs">
+  <p class="titre">À observer</p>
+  <p>Dans l'onglet <em>Réseau</em>, sélectionnez deux appels successifs à <code>GET /api/films</code> et comparez leurs en-têtes de requête, ligne à ligne.</p>
+  <p>Ils sont <strong>rigoureusement identiques</strong>. Rien ne permet au serveur de savoir que le second vient du même navigateur que le premier — ni même qu'il y a eu un premier.</p>
+</div>
+
+<div class="box redige">
+  <p class="titre">À rédiger — Q0</p>
+  <ol>
+    <li>Le serveur pourrait-il enregistrer vos préférences dans une variable PHP ? Que se passerait-il si deux personnes utilisaient l'application en même temps ?</li>
+    <li>Qu'est-ce qui, <strong>dans la requête HTTP</strong>, pourrait permettre au serveur de reconnaître qu'il a déjà eu affaire à ce navigateur ?</li>
+  </ol>
+</div>
+
+
+<h2 id="p1"><span class="num">Phase 1</span>Un cookie n'est qu'un en-tête HTTP</h2>
+<p class="duree">20 minutes</p>
+<p class="objectif">Objectif : comprendre le mécanisme avant d'utiliser la fonction PHP qui le pilote. L'ordre des étapes est important, ne le contournez pas.</p>
+
+<h4>Étape 1.1 — Poser un cookie à la main</h4>
+<p>Dans <code>PreferencesController::show()</code>, ajoutez un en-tête de réponse écrit littéralement :</p>
+
+<pre><code class="language-php">public function show(): void
+{
+    header('Set-Cookie: tp=bonjour');
+
+    $tri     = self::TRI_DEFAUT;
+    $parPage = self::PAR_PAGE_DEFAUT;
+
+    Response::json(['tri' =&gt; $tri, 'parPage' =&gt; $parPage]);
+}</code></pre>
+
+<p>Rechargez la page <strong>deux fois</strong>, puis inspectez les deux appels à <code>/api/preferences</code> dans l'onglet <em>Réseau</em>.</p>
+
+<div class="box obs">
+  <p class="titre">À observer</p>
+  <p>Dans la <strong>réponse</strong> du premier appel :</p>
+  <pre class="http"><code class="nohighlight">HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+<b>Set-Cookie: tp=bonjour</b></code></pre>
+  <p>Dans la <strong>requête</strong> du second :</p>
+  <pre class="http"><code class="nohighlight">GET /~votre_login/Base/api/preferences HTTP/1.1
+Host: mmi.unilim.fr
+<b>Cookie: tp=bonjour</b></code></pre>
+  <p>Deux en-têtes différents, deux directions différentes : <code>Set-Cookie</code> descend du serveur, <code>Cookie</code> remonte du navigateur. Vérifiez également la présence du cookie dans <em>Application ▸ Stockage ▸ Cookies</em>.</p>
+</div>
+
+<h4>Étape 1.2 — Lire le cookie côté serveur</h4>
+<p>PHP expose les cookies reçus dans la superglobale <code>$_COOKIE</code>. Renvoyez-la temporairement pour l'inspecter :</p>
+
+<pre><code class="language-php">Response::json([
+    'tri'     =&gt; $tri,
+    'parPage' =&gt; $parPage,
+    'cookies' =&gt; $_COOKIE,   // à retirer plus tard
+]);</code></pre>
+
+<p>Rechargez. Le tableau contient désormais <code>tp</code>.</p>
+
+<h4>Étape 1.3 — La même chose avec <code>setcookie()</code></h4>
+<p>Remplacez l'appel manuel par la fonction PHP dédiée :</p>
+
+<pre><code class="language-php">setcookie('tp', 'bonjour');</code></pre>
+
+<div class="box obs">
+  <p class="titre">À observer</p>
+  <p>Comparez les en-têtes de réponse produits par les deux versions. Ils sont <strong>identiques</strong>. <code>setcookie()</code> n'écrit ni fichier ni enregistrement en base : elle construit un en-tête <code>Set-Cookie</code> correctement formaté, et rien d'autre.</p>
+</div>
+
+<div class="box info">
+  <p class="titre">Corollaire</p>
+  <p>Un en-tête doit être envoyé <strong>avant</strong> le corps de la réponse. C'est pourquoi <code>setcookie()</code> échoue avec un avertissement <code>headers already sent</code> si le moindre caractère a déjà été affiché — ne serait-ce qu'une ligne vide après un <code>?&gt;</code>.</p>
+  <p>L'architecture en couches du squelette vous en protège : le contrôleur décide, et <code>Response::json()</code> n'écrit qu'à la toute fin. C'est un bénéfice concret du découpage, pas une coïncidence.</p>
+</div>
+
+<div class="box redige">
+  <p class="titre">À rédiger — Q1</p>
+  <ol>
+    <li>Où sont physiquement stockées les données d'un cookie : sur le serveur, ou sur le poste du client ?</li>
+    <li>Qui décide d'envoyer le cookie à chaque requête : le code JavaScript de la page, ou le navigateur lui-même ?</li>
+    <li>En une phrase : que fait exactement <code>setcookie()</code> ?</li>
+  </ol>
+</div>
+
+
+<h2 id="p2"><span class="num">Phase 2</span>Mémoriser les préférences, et le piège du décalage</h2>
+<p class="duree">15 minutes</p>
+<p class="objectif">Objectif : résoudre le problème de la phase 0, et rencontrer le contretemps qui déroute tous les débutants.</p>
+
+<h4>Étape 2.1 — Enregistrer, puis relire</h4>
+<p>Retirez le cookie <code>tp</code> de test. Dans <code>update()</code>, enregistrez les deux préférences une fois validées :</p>
+
+<pre><code class="language-php">setcookie('tri',      $tri,              ['path' =&gt; '/~votre_login/Base/']);
+setcookie('par_page', (string) $parPage, ['path' =&gt; '/~votre_login/Base/']);</code></pre>
+
+<div class="box alerte">
+  <p class="titre">Le chemin, tout de suite et partout pareil</p>
+  <p>Remplacez <code>votre_login</code> par votre identifiant, et utilisez <strong>exactement ce chemin</strong> dans tous les <code>setcookie()</code> du TP. Deux raisons, que la phase 3 détaillera :</p>
+  <ol>
+    <li>Avec <code>'/'</code>, le cookie serait envoyé à <strong>tout</strong> <code>mmi.unilim.fr</code> — donc aussi aux espaces de vos camarades, qui y verraient passer vos valeurs.</li>
+    <li>Supprimer un cookie exige de réutiliser le chemin qui a servi à le poser. Un chemin qui change en cours de route rend la suppression impossible.</li>
+  </ol>
+</div>
+
+<p>Puis, dans <code>show()</code>, lisez-les au lieu des valeurs par défaut. Attention : le contenu d'un cookie vient du client, il doit être validé exactement comme le corps d'une requête. Les constantes <code>TRIS_AUTORISES</code> et <code>PAR_PAGE_AUTORISES</code> sont déjà dans le fichier.</p>
+
+<pre><code class="language-php">$tri     = $_COOKIE['tri'] ?? self::TRI_DEFAUT;
+$parPage = (int) ($_COOKIE['par_page'] ?? self::PAR_PAGE_DEFAUT);
+
+// … à vous de compléter la validation …</code></pre>
+
+<p>Changez un réglage, rechargez la page. Il est conservé : le problème de la phase 0 est résolu.</p>
+
+<h4>Étape 2.2 — Mais l'API se contredit</h4>
+<p>Pour vérifier votre enregistrement, faites répondre <code>update()</code> avec ce que contient <code>$_COOKIE</code> plutôt qu'avec la variable validée — un réflexe légitime, une API qui confirme ce qu'elle vient d'enregistrer :</p>
+
+<pre><code class="language-php">Response::json([
+    'tri'     =&gt; $_COOKIE['tri']      ?? self::TRI_DEFAUT,
+    'parPage' =&gt; (int) ($_COOKIE['par_page'] ?? self::PAR_PAGE_DEFAUT),
+]);</code></pre>
+
+<p>Videz les cookies du site, puis changez le tri pour « Note ». Observez l'appel dans l'onglet <em>Réseau</em> :</p>
+
+<pre class="http"><code class="nohighlight">→ POST /api/preferences     {"tri":"note","parPage":12}
+← 200 OK                    <b>{"tri":"titre","parPage":12}</b></code></pre>
+
+<p>Vous demandez <code>note</code>, l'API confirme <code>titre</code>. Pourtant l'enregistrement a bien eu lieu, puisque le rechargement fonctionne.</p>
+
+<div class="box redige">
+  <p class="titre">À rédiger — Q2</p>
+  <ol>
+    <li>À quel moment précis PHP remplit-il le tableau <code>$_COOKIE</code> : au début de la requête, ou au fur et à mesure des appels à <code>setcookie()</code> ?</li>
+    <li>Sur quoi PHP s'appuie-t-il pour le remplir ?</li>
+    <li>Combien d'allers-retours faut-il pour qu'une valeur posée par <code>setcookie()</code> apparaisse dans <code>$_COOKIE</code> ? Expliquez.</li>
+  </ol>
+</div>
+
+<h4>Étape 2.3 — Corriger</h4>
+<p>Rétablissez une réponse cohérente avec la demande. La solution tient en un mot : répondez avec la variable que vous venez de valider.</p>
+
+<div class="box alerte">
+  <p class="titre">Retenez-le</p>
+  <p><code>$_COOKIE</code> décrit ce que le navigateur <strong>a envoyé</strong>. <code>setcookie()</code> prépare ce que le navigateur <strong>recevra</strong>. Les deux ne se rencontrent jamais pendant la même requête.</p>
+</div>
+
+
+<h2 id="p3"><span class="num">Phase 3</span>Les attributs du cookie</h2>
+<p class="duree">25 minutes</p>
+<p class="objectif">Objectif : un cookie ne se résume pas à un couple nom / valeur. Ses attributs déterminent quand, où et à qui il est envoyé.</p>
+
+<p>Pour chaque attribut ci-dessous : <strong>formulez une hypothèse</strong>, réalisez la manipulation, puis notez l'écart éventuel avec votre prévision.</p>
+
+<h4>Étape 3.1 — Durée de vie</h4>
+<p>Vos cookies n'ont pour l'instant aucune date d'expiration.</p>
+<ol>
+  <li>Choisissez un tri, fermez <strong>complètement</strong> le navigateur, rouvrez-le sur l'application. Que constatez-vous ?</li>
+  <li>Ajoutez une date d'expiration et recommencez :</li>
+</ol>
+
+<pre><code class="language-php">setcookie('tri', $tri, [
+    'expires' =&gt; time() + 30 * 24 * 3600,   // 30 jours
+    'path'    =&gt; '/~votre_login/Base/',
+]);</code></pre>
+
+<div class="box redige">
+  <p class="titre">À rédiger — Q3a</p>
+  <p>On distingue les <em>cookies de session</em> (sans expiration, effacés à la fermeture du navigateur) des <em>cookies persistants</em>. Lequel convient à une préférence d'affichage, et pourquoi ? Quelle durée vous paraît raisonnable ? Justifiez.</p>
+</div>
+
+<h4>Étape 3.2 — Supprimer un cookie</h4>
+<p>Cherchez dans la documentation comment supprimer un cookie. Il n'existe aucun en-tête <code>Delete-Cookie</code> : la seule façon de faire est de le réémettre avec une date passée.</p>
+
+<pre><code class="language-php">setcookie('tri', '', ['expires' =&gt; time() - 3600, 'path' =&gt; '/~votre_login/Base/']);</code></pre>
+
+<div class="box alerte">
+  <p class="titre">Attention</p>
+  <p>Le <code>path</code> de suppression doit être <strong>exactement le même</strong> que celui utilisé pour poser le cookie. Sinon vous créez un second cookie de même nom au lieu d'effacer le premier — et vous vous retrouvez avec deux valeurs concurrentes, source classique de bugs incompréhensibles.</p>
+</div>
+
+<h4>Étape 3.3 — <code>path</code> : où le cookie est envoyé</h4>
+<p>Posez temporairement deux cookies de test dans <code>update()</code>, l'un sans <code>path</code>, l'autre avec :</p>
+
+<pre><code class="language-php">setcookie('sans_path', 'test');
+setcookie('avec_path', 'test', ['path' =&gt; '/']);</code></pre>
+
+<div class="box obs">
+  <p class="titre">À observer</p>
+  <p>Dans l'onglet <em>Réseau</em>, regardez les en-têtes <code>Set-Cookie</code> de la réponse : le premier n'a <strong>aucun</strong> attribut de chemin. Allez ensuite dans <em>Application ▸ Cookies</em> et comparez la colonne <em>Path</em> des deux cookies.</p>
+  <p>Le navigateur a calculé un chemin pour le premier. Lequel, et d'où vient-il ? Rapprochez-le de l'URL de la requête qui a posé le cookie.</p>
+</div>
+
+<div class="box alerte">
+  <p class="titre">Ce que <code>'/'</code> veut dire ici</p>
+  <p>Le cookie <code>avec_path</code> que vous venez de poser part maintenant vers <strong>toutes</strong> les adresses de <code>mmi.unilim.fr</code> — y compris <code>~camarade/Base/</code>. Ouvrez le projet d'un voisin et regardez l'en-tête <code>Cookie</code> de ses requêtes dans votre onglet <em>Réseau</em> : votre cookie y est.</p>
+  <p>Un cookie appartient à un <strong>domaine</strong>, et vous partagez ce domaine avec toute la promotion. C'est la raison du chemin <code>/~votre_login/Base/</code> imposé en phase 2 : il cantonne vos cookies à votre projet. Supprimez les deux cookies de test avant de continuer.</p>
+</div>
+
+<div class="box redige">
+  <p class="titre">À rédiger — Q3b</p>
+  <ol>
+    <li>Quel chemin le navigateur attribue-t-il à un cookie envoyé sans attribut <code>path</code> ?</li>
+    <li>Le filtrage par <code>path</code> est appliqué par le navigateur, pas par le serveur. Peut-on le considérer comme une mesure de sécurité ? Que se passerait-il avec un client HTTP autre qu'un navigateur ?</li>
+    <li>Deux étudiants déposent ce même TP sur <code>mmi.unilim.fr</code>, et tous deux posent un cookie <code>tri</code> avec <code>'path' =&gt; '/'</code>. Que se passe-t-il dans le navigateur de celui qui visite les deux projets ? Le <code>path</code> règle-t-il ce problème, ou ne fait-il que le contourner ?</li>
+  </ol>
+</div>
+
+<h4>Étape 3.4 — <code>httponly</code> : qui peut lire le cookie</h4>
+<p>Posez deux cookies de test, l'un avec l'attribut, l'autre sans :</p>
+
+<pre><code class="language-php">setcookie('visible', 'oui', ['path' =&gt; '/~votre_login/Base/', 'httponly' =&gt; false]);
+setcookie('cache',   'oui', ['path' =&gt; '/~votre_login/Base/', 'httponly' =&gt; true]);</code></pre>
+
+<p>Rechargez, puis dans la console JavaScript :</p>
+
+<pre><code class="language-javascript">document.cookie;</code></pre>
+
+<div class="box obs">
+  <p class="titre">À observer</p>
+  <p>Un seul des deux apparaît. Les deux sont pourtant bien présents dans <em>Application ▸ Cookies</em>, et tous deux sont envoyés au serveur à chaque requête. <code>httponly</code> ne masque le cookie qu'au <strong>JavaScript de la page</strong>.</p>
+</div>
+
+<div class="box demo">
+  <p class="titre">Appliquez-le</p>
+  <p>Regardez la réponse de <code>GET /api/films</code> : elle contient les films, mais aussi <code>tri</code>, <code>parPage</code>, <code>page</code> et <code>pagesTotal</code>. Le front est informé des réglages appliqués par le serveur lui-même.</p>
+  <p>Votre code JavaScript a-t-il donc besoin de lire les cookies <code>tri</code> et <code>par_page</code> ? Passez-les en <code>httponly</code> et vérifiez que l'application fonctionne toujours. Vous venez d'appliquer le bon principe : <strong>on restreint par défaut, on n'ouvre que sur besoin avéré</strong>.</p>
+</div>
+
+<div class="box redige">
+  <p class="titre">À rédiger — Q3c</p>
+  <p>Contre quel type d'attaque <code>httponly</code> protège-t-il ? Contre lesquels ne protège-t-il pas ?</p>
+</div>
+
+<h4>Étape 3.5 — <code>secure</code> : n'emprunter que le canal chiffré</h4>
+<p><code>mmi.unilim.fr</code> est servi en HTTPS. Vous pouvez donc poser un cookie <code>secure</code> et le vérifier vous-même — ajoutez l'attribut à vos deux cookies de préférences :</p>
+
+<pre><code class="language-php">setcookie('tri', $tri, [
+    'expires'  =&gt; time() + 30 * 24 * 3600,
+    'path'     =&gt; '/~votre_login/Base/',
+    'httponly' =&gt; true,
+    'secure'   =&gt; true,
+]);</code></pre>
+
+<div class="box obs">
+  <p class="titre">À observer</p>
+  <p>Dans <em>Application ▸ Cookies</em>, la colonne <em>Secure</em> est maintenant cochée, et l'en-tête <code>Set-Cookie</code> de la réponse se termine par <code>; secure</code>. L'application continue de fonctionner : la connexion étant déjà chiffrée, la condition est toujours remplie.</p>
+  <p>Essayez d'atteindre le site en <code>http://</code> plutôt qu'en <code>https://</code>. Vous n'y parviendrez pas : le serveur vous redirige. C'est une bonne nouvelle pour la sécurité, mais cela vous prive du contre-exemple — vous ne pourrez pas voir le cookie être retenu.</p>
+</div>
+
+<div class="box redige">
+  <p class="titre">À rédiger — Q3d</p>
+  <ol>
+    <li>Si le site était accessible en clair, qu'arriverait-il à un cookie <code>secure</code> lors d'une requête <code>http://</code> ? Et à un cookie sans cet attribut ?</li>
+    <li>Cet attribut protège-t-il le cookie une fois arrivé sur le poste du client ? Précisez ce qu'il protège, et ce qu'il ne protège pas.</li>
+  </ol>
+</div>
+
+<h4>Étape 3.6 — <code>samesite</code> <span class="opt">Démonstration</span></h4>
+<p>Ce dernier attribut ne peut pas être observé ici : il suppose deux sites distincts, et tous vos projets partagent <code>mmi.unilim.fr</code>. Il fait l'objet d'une démonstration collective — prenez des notes, il reviendra au TP 2.</p>
+<ul>
+  <li><code>samesite</code> (<code>Strict</code>, <code>Lax</code>, <code>None</code>) : détermine si le cookie accompagne une requête déclenchée depuis un <em>autre</em> site. C'est la principale défense contre le CSRF.</li>
+</ul>
+
+<h4>Récapitulatif à compléter</h4>
+<div class="tableau">
+<table>
+  <thead>
+    <tr><th>Attribut</th><th>Ce qu'il contrôle</th><th>Valeur retenue</th><th>Pourquoi</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>expires</code></td><td></td><td></td><td></td></tr>
+    <tr><td><code>path</code></td><td></td><td></td><td></td></tr>
+    <tr><td><code>httponly</code></td><td></td><td></td><td></td></tr>
+    <tr><td><code>secure</code></td><td></td><td></td><td></td></tr>
+    <tr><td><code>samesite</code></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+</div>
+
+
+<h2 id="p4"><span class="num">Phase 4</span>Cookie, <code>localStorage</code> ou base de données ?</h2>
+<p class="duree">25 minutes</p>
+<p class="objectif">Objectif : savoir choisir. Le cookie n'est pas toujours le bon outil — mais il est parfois le seul.</p>
+
+<h4>Étape 4.1 — Brancher le catalogue</h4>
+<p>Vos préférences sont enregistrées, mais le catalogue n'en tient pas encore compte : il trie toujours par titre. Ouvrez le contrôleur concerné.</p>
+
+<p class="fichier">back/src/Controller/CatalogueController.php</p>
+<pre><code class="language-php">public function index(Request $requete): void
+{
+    // TP · Phase 4 — Ces deux réglages sont figés.
+    $tri     = 'titre';
+    $parPage = 12;
+
+    // Validation : on n'accepte que ce qui figure dans nos listes.
+    $ordre   = self::TRIS[$tri] ?? self::TRIS['titre'];
+    $parPage = in_array($parPage, self::PAR_PAGE_AUTORISES, true) ? $parPage : 12;
+
+    // …</code></pre>
+
+<p>Lisez les deux réglages depuis les cookies. La liste blanche et la validation sont déjà écrites : il ne manque que la source des valeurs. Vérifiez ensuite que les quatre tris fonctionnent et survivent au rechargement.</p>
+
+<div class="box alerte">
+  <p class="titre">Attention — ce que les requêtes préparées ne protègent pas</p>
+  <p>Regardez la liste blanche <code>TRIS</code> en haut du fichier : elle associe une clé venue du client à un fragment SQL écrit par nous. Pourquoi ne pas simplement lier le nom de colonne avec PDO, comme vous en avez l'habitude ?</p>
+  <pre><code class="language-php">$sql = 'SELECT titre FROM r313_film ORDER BY :colonne LIMIT 3';
+$requetePreparee-&gt;bindValue(':colonne', 'annee');   // ne fonctionne pas</code></pre>
+  <p>La requête devient <code>ORDER BY 'annee'</code> : une <strong>chaîne littérale</strong>, identique pour toutes les lignes. Le tri ne trie rien, et <strong>aucune erreur n'est levée</strong>. Essayez, vous obtiendrez les films dans l'ordre des titres.</p>
+  <p>Un paramètre lié protège une <strong>valeur</strong>, jamais un <strong>identifiant</strong> (nom de table, nom de colonne, sens du tri). Pour ceux-là, la seule protection est la liste blanche : le cookie ne choisit pas la colonne, il choisit une <em>clé</em> dans un tableau que vous contrôlez. Sans ce tableau, <code>$_COOKIE['tri']</code> arriverait par concaténation directe dans votre SQL — et le contenu d'un cookie est une entrée utilisateur comme une autre.</p>
+</div>
+
+<h4>Étape 4.2 — L'expérience décisive</h4>
+<p>Le squelette contient déjà une préférence gérée autrement : le thème clair / sombre du bouton en haut à droite. Ouvrez <code>front/js/lib/theme-init.js</code> et constatez qu'il utilise <code>localStorage</code>, pas de cookie.</p>
+
+<ol>
+  <li>Basculez le thème, puis ouvrez <em>Application ▸ Stockage local</em>. La valeur est là, elle survit au rechargement : le stockage fonctionne parfaitement.</li>
+  <li>Allez maintenant dans l'onglet <em>Réseau</em> et cherchez cette valeur dans les en-têtes de n'importe quelle requête.</li>
+</ol>
+
+<div class="box obs">
+  <p class="titre">À observer</p>
+  <p>Elle n'y est nulle part. Le serveur ne voit rien de ce que contient <code>localStorage</code>, et n'a aucun moyen d'y accéder. Le cookie, lui, accompagne automatiquement toute requête vers le domaine — c'est le navigateur qui s'en charge, sans une ligne de JavaScript.</p>
+</div>
+
+<div class="box redige">
+  <p class="titre">À rédiger — Q4</p>
+  <ol>
+    <li>Le thème est stocké en <code>localStorage</code>, le tri en cookie. Qu'est-ce qui distingue fondamentalement ces deux préférences ? Votre réponse doit tenir en une phrase.</li>
+    <li>Si le tri était rangé en <code>localStorage</code>, que faudrait-il faire pour que le serveur puisse quand même l'utiliser dans son <code>ORDER BY</code> ?</li>
+    <li>Un cookie est envoyé dans <strong>chaque</strong> requête vers le domaine, y compris celles qui récupèrent les images et les feuilles de style. Quelles conséquences sur le volume et la nature de ce qu'on accepte d'y mettre ?</li>
+    <li>Une préférence stockée en cookie suit-elle l'utilisateur lorsqu'il change de poste ? Et en <code>localStorage</code> ? Quel mécanisme faudrait-il pour cela ?</li>
+    <li>Complétez la grille de décision ci-dessous.</li>
+  </ol>
+</div>
+
+<div class="tableau">
+<table>
+  <thead>
+    <tr><th>Nature de la donnée</th><th>Où la stocker</th><th>Exemple tiré du TP</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Le serveur en a besoin pour construire sa réponse</td><td></td><td></td></tr>
+    <tr><td>Purement cliente, éventuellement volumineuse</td><td></td><td></td></tr>
+    <tr><td>Doit suivre l'utilisateur d'un appareil à l'autre</td><td></td><td></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box info">
+  <p class="titre">Une objection à traiter</p>
+  <p>Pourquoi ne pas simplement écrire <code>GET /api/films?tri=note&amp;parPage=24</code> ? Parce qu'un paramètre d'URL transporte un choix <strong>pour une requête</strong>, là où le cookie mémorise un <strong>réglage par défaut</strong>. Avec le seul paramètre, il faudrait le réinjecter dans chaque lien, chaque changement de page, chaque retour au catalogue — et tout serait perdu à la fermeture de l'onglet.</p>
+  <p>Remarquez d'ailleurs que le squelette utilise les deux : la page courante voyage dans l'URL (<code>?page=2</code>), parce que c'est un choix ponctuel, tandis que le tri et la pagination sont des réglages durables.</p>
+</div>
+
+
+<h2 id="p5"><span class="num">Phase 5</span>Le cookie de trop</h2>
+<p class="duree">20 minutes</p>
+<p class="objectif">Objectif : identifier la limite structurelle du cookie. Cette phase conditionne le TP suivant, ne la sautez pas.</p>
+
+<p>La page <em>Administration</em> du site affiche des statistiques réservées aux administrateurs. Les routes correspondantes n'existent pas encore : la page vous l'indique explicitement. Vous allez les créer — avec une authentification telle qu'on en trouve dans du code d'amateur.</p>
+
+<h4>Étape 5.1 — Une authentification naïve</h4>
+<p>Créez les deux contrôleurs suivants.</p>
+
+<p class="fichier">back/src/Controller/AuthController.php</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Controller;
+
+use App\Core\Request;
+use App\Core\Response;
+
+final class AuthController
+{
+    public function login(Request $requete): void
+    {
+        $corps = $requete-&gt;corps();
+        $login = (string) ($corps['login'] ?? '');
+        $mdp   = (string) ($corps['mdp']   ?? '');
+
+        if ($login === 'alice' &amp;&amp; $mdp === 'azerty') {
+            setcookie('utilisateur', 'alice', ['path' =&gt; '/~votre_login/Base/']);
+            setcookie('role',        'user',  ['path' =&gt; '/~votre_login/Base/']);
+
+            Response::json(['connecte' =&gt; true, 'role' =&gt; 'user']);
+        }
+
+        Response::erreur('Identifiants invalides', 401);
+    }
+}</code></pre>
+
+<p class="fichier">back/src/Controller/StatsController.php</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Controller;
+
+use App\Core\Response;
+use App\Model\FilmModel;
+
+final class StatsController
+{
+    /** Le modèle qui interroge la base, fourni à la construction. */
+    private FilmModel $films;
+
+    public function __construct(FilmModel $films)
+    {
+        $this-&gt;films = $films;
+    }
+
+    public function index(): void
+    {
+        if (($_COOKIE['role'] ?? '') !== 'admin') {
+            Response::erreur('Accès réservé aux administrateurs', 403);
+        }
+
+        Response::json($this-&gt;films-&gt;statistiques());
+    }
+}</code></pre>
+
+<p>Activez-les ensuite aux <strong>deux</strong> endroits marqués <code>TP · Phase 5</code> : la déclaration des routes dans <code>back/src/routes.php</code>, et l'enregistrement des contrôleurs dans <code>back/index.php</code>. Pensez aux <code>use</code> correspondants.</p>
+
+<div class="box info">
+  <p class="titre">Deux remarques sur ce code</p>
+  <p><code>Response::json()</code> et <code>Response::erreur()</code> terminent le script : il n'y a donc pas besoin de <code>return</code> après elles.</p>
+  <p>La page d'administration n'est pas protégée côté front — le formulaire et la zone de statistiques sont toujours présents dans le DOM. C'est délibéré : le contrôle d'accès est l'affaire du serveur, et lui seul.</p>
+</div>
+
+<h4>Étape 5.2 — L'attaque</h4>
+<ol>
+  <li>Ouvrez la page <em>Administration</em>. Message : accès réservé. Le contrôle fonctionne.</li>
+  <li>Connectez-vous avec <code>alice</code> / <code>azerty</code>. L'accès est toujours refusé : votre rôle est <code>user</code>.</li>
+  <li>Ouvrez <em>Application ▸ Cookies</em>. Double-cliquez sur la valeur du cookie <code>role</code>.</li>
+  <li>Remplacez <code>user</code> par <code>admin</code>, validez, rechargez la page.</li>
+</ol>
+
+<div class="box alerte">
+  <p class="titre">Résultat</p>
+  <p>Les statistiques s'affichent. Vous êtes administrateur : sans mot de passe, sans faille logicielle, sans outil particulier — en quinze secondes et deux clics.</p>
+</div>
+
+<div class="box redige">
+  <p class="titre">À rédiger — Q5</p>
+  <ol>
+    <li>Le serveur dispose-t-il d'un moyen technique de distinguer un cookie qu'il a lui-même posé d'un cookie forgé par le client ? Justifiez à partir de ce que vous avez observé en phase 1.</li>
+    <li>L'attribut <code>httponly</code> sur le cookie <code>role</code> aurait-il empêché cette manipulation ? Réfléchissez bien à <em>qui</em> a modifié la valeur.</li>
+    <li>Chiffrer ou signer le contenu du cookie résoudrait-il le problème ? Quelles nouvelles difficultés cela introduirait-il ?</li>
+    <li>Reformulez le principe général : quelle catégorie d'information ne doit jamais être stockée dans un cookie ?</li>
+  </ol>
+</div>
+
+<div class="box info">
+  <p class="titre">La question reste ouverte</p>
+  <p>Une application a pourtant besoin de savoir qui vous êtes d'une requête à l'autre, et le cookie est le seul mécanisme dont nous disposions pour transporter cette continuité. Comment concilier les deux ? C'est l'objet du TP 2.</p>
+</div>
+
+
+<h2 id="p6"><span class="num">Phase 6</span>Synthèse et rendu</h2>
+<p class="duree">5 minutes</p>
+
+<div class="box redige">
+  <p class="titre">Questions de bilan</p>
+  <ol>
+    <li>En trois phrases : pourquoi les préférences n'étaient-elles pas conservées en phase 0, et qu'est-ce qui a changé ?</li>
+    <li>Citez une donnée qu'il est pertinent de placer dans un cookie, et une qu'il ne faut jamais y placer. Justifiez les deux.</li>
+    <li>Un cookie sans attribut <code>expires</code> disparaît à la fermeture du navigateur. Cela en fait-il un stockage sûr ? Expliquez la différence entre <em>éphémère</em> et <em>fiable</em>.</li>
+  </ol>
+</div>
+
+<h4>Livrable</h4>
+<p>Déposez sur l'espace de rendu une archive contenant :</p>
+<ul>
+  <li>le dossier <code>Base/</code> à l'issue de la séance, phases 1 à 5 incluses ;</li>
+  <li>un fichier <code>REPONSES.md</code> regroupant vos réponses aux questions Q0 à Q5 et aux questions de bilan, ainsi que les deux tableaux complétés (phases 3 et 4) ;</li>
+  <li>deux captures d'écran de l'élévation de privilège de l'étape 5.2 : avant et après modification du cookie.</li>
+</ul>
+
+<h4>Pour aller plus loin <span class="opt">Facultatif</span></h4>
+<ul>
+  <li>Reproduisez l'attaque de la phase 5 sans navigateur, en une seule commande. L'option <code>-H</code> de <code>curl</code> permet d'envoyer un en-tête arbitraire. Que conclure sur la valeur d'une vérification côté client ?</li>
+  <li>Faites cohabiter les deux mécanismes dans <code>CatalogueController</code> : le paramètre d'URL l'emporte s'il est présent, le cookie sert de valeur par défaut sinon, et tout choix explicite met le cookie à jour. Cinq lignes suffisent.</li>
+  <li>Sur un site que vous fréquentez, inventoriez les cookies posés. Combien proviennent d'un domaine tiers ? Quelle est leur durée de vie ? Reliez cela à la notion de cookie de suivi publicitaire et aux bandeaux de consentement.</li>
+  <li>Documentez-vous sur les préfixes <code>__Host-</code> et <code>__Secure-</code> : quelle garantie supplémentaire apportent-ils, et pourquoi le navigateur peut-il la faire respecter ?</li>
+</ul>
+
+<footer>
+  <p>R3.13 — TP 1 : les cookies HTTP · Le TP 2 (sessions PHP) prend directement la suite de la phase 5.</p>
+</footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  if (window.hljs) {
+    hljs.configure({ cssSelector: 'pre code:not(.nohighlight)' });
+    hljs.highlightAll();
+  }
+</script>
+</body>
+</html>
