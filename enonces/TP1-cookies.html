@@ -414,23 +414,32 @@ footer {
 <p>C'est pourtant un comportement que vous connaissez : une boutique en ligne, un back-office, une médiathèque se souviennent du nombre d'articles que vous affichez par page, d'une visite à l'autre.</p>
 
 <h4>Étape 0.2 — Pourquoi</h4>
-<p>Le fichier suivant est appelé à chaque chargement de la page :</p>
+<p>Videz l'onglet <em>Réseau</em>, puis changez de tri. Deux requêtes partent :</p>
+
+<pre class="http"><code class="nohighlight">→ POST /api/preferences                        {"tri":"note","parPage":48}
+→ GET  /api/films?page=1<b>&amp;tri=note&amp;parPage=48</b></code></pre>
+
+<p>La première transmet votre choix à la méthode <code>update()</code>, qui le valide correctement… puis ne le conserve nulle part :</p>
 
 <p class="fichier">back/src/Controller/PreferencesController.php</p>
-<pre><code class="language-php">public function show(): void
+<pre><code class="language-php">public function update(Request $requete): void
 {
-    // TP · Phases 0 à 3 — Les préférences sont ici codées en dur.
-    $tri     = self::TRI_DEFAUT;      // 'titre'
-    $parPage = self::PAR_PAGE_DEFAUT; // 12
+    // … validation de $tri et de $parPage …
+
+    // TP · Phases 1 à 3 — L'enregistrement manque.
 
     Response::json(['tri' =&gt; $tri, 'parPage' =&gt; $parPage]);
 }</code></pre>
 
-<p>La méthode <code>update()</code>, appelée quand vous changez un réglage, valide correctement ce qu'elle reçoit — puis ne le conserve pas.</p>
+<p>La seconde requête n'obtient le bon tri que parce que le front <strong>réinjecte</strong> votre choix dans l'URL. Rechargez maintenant la page et regardez ce qui part :</p>
+
+<pre class="http"><code class="nohighlight">→ GET  /api/films?page=1</code></pre>
+
+<p>Une fois rechargé, le front ne se souvient plus de rien, et le serveur non plus : il applique ses valeurs par défaut.</p>
 
 <div class="box obs">
   <p class="titre">À observer</p>
-  <p>Dans l'onglet <em>Réseau</em>, sélectionnez deux appels successifs à <code>GET /api/films</code> et comparez leurs en-têtes de requête, ligne à ligne.</p>
+  <p>Rechargez la page deux fois. Dans l'onglet <em>Réseau</em>, sélectionnez les deux appels à <code>GET /api/films?page=1</code> et comparez leurs en-têtes de requête, ligne à ligne.</p>
   <p>Ils sont <strong>rigoureusement identiques</strong>. Rien ne permet au serveur de savoir que le second vient du même navigateur que le premier — ni même qu'il y a eu un premier.</p>
 </div>
 
@@ -447,6 +456,13 @@ footer {
 <p class="duree">20 minutes</p>
 <p class="objectif">Objectif : comprendre le mécanisme avant d'utiliser la fonction PHP qui le pilote. L'ordre des étapes est important, ne le contournez pas.</p>
 
+<div class="box info">
+  <p class="titre">Un deuxième onglet, pour les phases 1 à 3</p>
+  <p>L'API se consulte aussi directement. Ouvrez un nouvel onglet à l'adresse <code>https://mmi.unilim.fr/~votre_login/Base/api/preferences</code>. Le navigateur affiche le JSON renvoyé par <code>PreferencesController::show()</code> :</p>
+  <pre class="http"><code class="nohighlight">{"tri":"titre","parPage":12}</code></pre>
+  <p>Gardez cet onglet ouvert, et ouvrez-y aussi les outils de développement : ils sont propres à chaque onglet. C'est là que vous observerez les phases 1 à 3. Le catalogue, lui, ne tiendra compte de vos cookies qu'à partir de la phase 4.</p>
+</div>
+
 <h4>Étape 1.1 — Poser un cookie à la main</h4>
 <p>Dans <code>PreferencesController::show()</code>, ajoutez un en-tête de réponse écrit littéralement :</p>
 
@@ -460,7 +476,7 @@ footer {
     Response::json(['tri' =&gt; $tri, 'parPage' =&gt; $parPage]);
 }</code></pre>
 
-<p>Rechargez la page <strong>deux fois</strong>, puis inspectez les deux appels à <code>/api/preferences</code> dans l'onglet <em>Réseau</em>.</p>
+<p>Rechargez l'onglet de l'API <strong>deux fois</strong>, puis inspectez les deux appels à <code>/api/preferences</code> dans son onglet <em>Réseau</em>.</p>
 
 <div class="box obs">
   <p class="titre">À observer</p>
@@ -484,7 +500,7 @@ Host: mmi.unilim.fr
     'cookies' =&gt; $_COOKIE,   // à retirer plus tard
 ]);</code></pre>
 
-<p>Rechargez. Le tableau contient désormais <code>tp</code>.</p>
+<p>Rechargez l'onglet de l'API. Le tableau contient désormais <code>tp</code>.</p>
 
 <h4>Étape 1.3 — La même chose avec <code>setcookie()</code></h4>
 <p>Remplacez l'appel manuel par la fonction PHP dédiée :</p>
@@ -514,7 +530,7 @@ Host: mmi.unilim.fr
 
 <h2 id="p2"><span class="num">Phase 2</span>Mémoriser les préférences, et le piège du décalage</h2>
 <p class="duree">15 minutes</p>
-<p class="objectif">Objectif : résoudre le problème de la phase 0, et rencontrer le contretemps qui déroute tous les débutants.</p>
+<p class="objectif">Objectif : faire mémoriser les préférences par le navigateur, et rencontrer le contretemps qui déroute tous les débutants.</p>
 
 <h4>Étape 2.1 — Enregistrer, puis relire</h4>
 <p>Retirez le cookie <code>tp</code> de test. Dans <code>update()</code>, enregistrez les deux préférences une fois validées :</p>
@@ -538,7 +554,8 @@ $parPage = (int) ($_COOKIE['par_page'] ?? self::PAR_PAGE_DEFAUT);
 
 // … à vous de compléter la validation …</code></pre>
 
-<p>Changez un réglage, rechargez la page. Il est conservé : le problème de la phase 0 est résolu.</p>
+<p>Dans l'application, changez de tri, puis rechargez l'onglet de l'API : <code>show()</code> renvoie désormais votre choix, et il résiste à tous les rechargements. Le serveur le reçoit à chaque requête.</p>
+<p>Rechargez maintenant l'application : le catalogue est revenu au tri par titre. Il ne consulte pas encore vos cookies. Vous le brancherez en phase 4.</p>
 
 <h4>Étape 2.2 — Mais l'API se contredit</h4>
 <p>Pour vérifier votre enregistrement, faites répondre <code>update()</code> avec ce que contient <code>$_COOKIE</code> plutôt qu'avec la variable validée — un réflexe légitime, une API qui confirme ce qu'elle vient d'enregistrer :</p>
@@ -551,9 +568,10 @@ $parPage = (int) ($_COOKIE['par_page'] ?? self::PAR_PAGE_DEFAUT);
 <p>Videz les cookies du site, puis changez le tri pour « Note ». Observez l'appel dans l'onglet <em>Réseau</em> :</p>
 
 <pre class="http"><code class="nohighlight">→ POST /api/preferences     {"tri":"note","parPage":12}
-← 200 OK                    <b>{"tri":"titre","parPage":12}</b></code></pre>
+← 200 OK                    <b>{"tri":"titre","parPage":12}</b>
+→ GET  /api/films?page=1&amp;tri=titre&amp;parPage=12</code></pre>
 
-<p>Vous demandez <code>note</code>, l'API confirme <code>titre</code>. Pourtant l'enregistrement a bien eu lieu, puisque le rechargement fonctionne.</p>
+<p>Vous demandez <code>note</code>, l'API confirme <code>titre</code>. Le front, qui demande le catalogue avec les réglages que l'API lui confirme, reste donc trié par titre. Pourtant, l'enregistrement a bien eu lieu : rechargez l'onglet de l'API, il répond <code>note</code>.</p>
 
 <div class="box redige">
   <p class="titre">À rédiger — Q2</p>
@@ -582,7 +600,7 @@ $parPage = (int) ($_COOKIE['par_page'] ?? self::PAR_PAGE_DEFAUT);
 <h4>Étape 3.1 — Durée de vie</h4>
 <p>Vos cookies n'ont pour l'instant aucune date d'expiration.</p>
 <ol>
-  <li>Choisissez un tri, fermez <strong>complètement</strong> le navigateur, rouvrez-le sur l'application. Que constatez-vous ?</li>
+  <li>Choisissez un tri, fermez <strong>complètement</strong> le navigateur, puis rouvrez-le sur l'adresse de l'API, <code>api/preferences</code>. Que constatez-vous ?</li>
   <li>Ajoutez une date d'expiration et recommencez :</li>
 </ol>
 
@@ -711,22 +729,25 @@ setcookie('cache',   'oui', ['path' =&gt; '/~votre_login/Base/', 'httponly' =&gt
 <p class="objectif">Objectif : savoir choisir. Le cookie n'est pas toujours le bon outil — mais il est parfois le seul.</p>
 
 <h4>Étape 4.1 — Brancher le catalogue</h4>
-<p>Vos préférences sont enregistrées, mais le catalogue n'en tient pas encore compte : il trie toujours par titre. Ouvrez le contrôleur concerné.</p>
+<p>Vos préférences sont enregistrées, mais le catalogue n'en tient pas encore compte : à chaque rechargement, il revient au tri par titre. Ouvrez le contrôleur concerné.</p>
 
 <p class="fichier">back/src/Controller/CatalogueController.php</p>
 <pre><code class="language-php">public function index(Request $requete): void
 {
-    // TP · Phase 4 — Ces deux réglages sont figés.
-    $tri     = 'titre';
-    $parPage = 12;
+    // TP · Phase 4 — Sans paramètre dans l'URL, les valeurs sont figées.
+    $tri     = $requete-&gt;parametre('tri') ?? 'titre';
+    $parPage = (int) ($requete-&gt;parametre('parPage') ?? 12);
 
     // Validation : on n'accepte que ce qui figure dans nos listes.
-    $ordre   = self::TRIS[$tri] ?? self::TRIS['titre'];
+    $tri     = array_key_exists($tri, self::TRIS) ? $tri : 'titre';
     $parPage = in_array($parPage, self::PAR_PAGE_AUTORISES, true) ? $parPage : 12;
+    $ordre   = self::TRIS[$tri];
 
     // …</code></pre>
 
-<p>Lisez les deux réglages depuis les cookies. La liste blanche et la validation sont déjà écrites : il ne manque que la source des valeurs. Vérifiez ensuite que les quatre tris fonctionnent et survivent au rechargement.</p>
+<p>Le catalogue ne connaît que deux sources : l'URL, que le front remplit après un changement de réglage, et des valeurs figées. Or, au chargement de la page, l'URL ne précise rien.</p>
+
+<p>Faites des cookies la valeur par défaut : quand l'URL ne dit rien, ce sont eux qui décident. L'opérateur <code>??</code> s'enchaîne, et la liste blanche comme la validation sont déjà écrites : il ne manque qu'une source de valeurs. Vérifiez ensuite que les quatre tris fonctionnent et survivent au rechargement.</p>
 
 <div class="box alerte">
   <p class="titre">Attention — ce que les requêtes préparées ne protègent pas</p>
@@ -734,7 +755,7 @@ setcookie('cache',   'oui', ['path' =&gt; '/~votre_login/Base/', 'httponly' =&gt
   <pre><code class="language-php">$sql = 'SELECT titre FROM r313_film ORDER BY :colonne LIMIT 3';
 $requetePreparee-&gt;bindValue(':colonne', 'annee');   // ne fonctionne pas</code></pre>
   <p>La requête devient <code>ORDER BY 'annee'</code> : une <strong>chaîne littérale</strong>, identique pour toutes les lignes. Le tri ne trie rien, et <strong>aucune erreur n'est levée</strong>. Essayez, vous obtiendrez les films dans l'ordre des titres.</p>
-  <p>Un paramètre lié protège une <strong>valeur</strong>, jamais un <strong>identifiant</strong> (nom de table, nom de colonne, sens du tri). Pour ceux-là, la seule protection est la liste blanche : le cookie ne choisit pas la colonne, il choisit une <em>clé</em> dans un tableau que vous contrôlez. Sans ce tableau, <code>$_COOKIE['tri']</code> arriverait par concaténation directe dans votre SQL — et le contenu d'un cookie est une entrée utilisateur comme une autre.</p>
+  <p>Un paramètre lié protège une <strong>valeur</strong>, jamais un <strong>identifiant</strong> (nom de table, nom de colonne, sens du tri). Pour ceux-là, la seule protection est la liste blanche : ni l'URL ni le cookie ne choisissent la colonne, ils choisissent une <em>clé</em> dans un tableau que vous contrôlez. Sans ce tableau, <code>$_COOKIE['tri']</code> arriverait par concaténation directe dans votre SQL — et le contenu d'un cookie est une entrée utilisateur au même titre qu'un paramètre d'URL.</p>
 </div>
 
 <h4>Étape 4.2 — L'expérience décisive</h4>
@@ -776,8 +797,8 @@ $requetePreparee-&gt;bindValue(':colonne', 'annee');   // ne fonctionne pas</cod
 
 <div class="box info">
   <p class="titre">Une objection à traiter</p>
-  <p>Pourquoi ne pas simplement écrire <code>GET /api/films?tri=note&amp;parPage=24</code> ? Parce qu'un paramètre d'URL transporte un choix <strong>pour une requête</strong>, là où le cookie mémorise un <strong>réglage par défaut</strong>. Avec le seul paramètre, il faudrait le réinjecter dans chaque lien, chaque changement de page, chaque retour au catalogue — et tout serait perdu à la fermeture de l'onglet.</p>
-  <p>Remarquez d'ailleurs que le squelette utilise les deux : la page courante voyage dans l'URL (<code>?page=2</code>), parce que c'est un choix ponctuel, tandis que le tri et la pagination sont des réglages durables.</p>
+  <p>Le catalogue lit désormais deux sources. Pourquoi ne pas se contenter de l'URL, <code>GET /api/films?tri=note&amp;parPage=24</code> ? Ouvrez <code>front/js/main.js</code> : pour que le tri survive à un changement de page, le front doit le réinjecter dans chaque requête — et au rechargement, il n'a plus rien à réinjecter. C'est exactement l'amnésie de la phase 0.</p>
+  <p>Un paramètre d'URL transporte un choix <strong>pour une requête</strong>, là où le cookie mémorise un <strong>réglage par défaut</strong>. Le squelette suit cette répartition : la page courante ne voyage que dans l'URL (<code>?page=2</code>), parce que c'est un choix ponctuel ; le tri et la pagination y voyagent aussi le temps d'une navigation, mais c'est le cookie qui les retient.</p>
 </div>
 
 
@@ -909,7 +930,6 @@ final class StatsController
 <h4>Pour aller plus loin <span class="opt">Facultatif</span></h4>
 <ul>
   <li>Reproduisez l'attaque de la phase 5 sans navigateur, en une seule commande. L'option <code>-H</code> de <code>curl</code> permet d'envoyer un en-tête arbitraire. Que conclure sur la valeur d'une vérification côté client ?</li>
-  <li>Faites cohabiter les deux mécanismes dans <code>CatalogueController</code> : le paramètre d'URL l'emporte s'il est présent, le cookie sert de valeur par défaut sinon, et tout choix explicite met le cookie à jour. Cinq lignes suffisent.</li>
   <li>Sur un site que vous fréquentez, inventoriez les cookies posés. Combien proviennent d'un domaine tiers ? Quelle est leur durée de vie ? Reliez cela à la notion de cookie de suivi publicitaire et aux bandeaux de consentement.</li>
   <li>Documentez-vous sur les préfixes <code>__Host-</code> et <code>__Secure-</code> : quelle garantie supplémentaire apportent-ils, et pourquoi le navigateur peut-il la faire respecter ?</li>
 </ul>

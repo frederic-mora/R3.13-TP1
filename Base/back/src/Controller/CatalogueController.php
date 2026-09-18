@@ -45,20 +45,26 @@ final class CatalogueController
 
     public function index(Request $requete): void
     {
-        // -------------------------------------------------------------------
-        // TP · Phase 4 — Ces deux réglages sont figés.
+        // Le choix du moment voyage dans l'URL : ?tri=note&parPage=24. Le front
+        // l'y place juste après un changement de réglage, puis à chaque
+        // changement de page. Au chargement de la page, en revanche, l'URL ne
+        // contient rien : le front ne se souvient d'aucun choix.
         //
-        // Ils devront être lus depuis les préférences envoyées par le navigateur,
-        // de façon à ce qu'un choix de l'utilisateur survive au rechargement.
-        // La liste blanche ci-dessus et la validation ci-dessous sont déjà là :
-        // il ne manque que la source des valeurs.
         // -------------------------------------------------------------------
-        $tri     = 'titre';
-        $parPage = 12;
+        // TP · Phase 4 — Sans paramètre dans l'URL, les valeurs sont figées.
+        //
+        // Quand l'URL ne dit rien, le catalogue devra appliquer les préférences
+        // envoyées par le navigateur, de façon à ce qu'un réglage survive au
+        // rechargement. La liste blanche ci-dessus et la validation ci-dessous
+        // sont déjà là : il ne manque qu'une source de valeurs par défaut.
+        // -------------------------------------------------------------------
+        $tri     = $requete->parametre('tri') ?? 'titre';
+        $parPage = (int) ($requete->parametre('parPage') ?? 12);
 
         // Validation : on n'accepte que ce qui figure dans nos listes.
-        $ordre   = self::TRIS[$tri] ?? self::TRIS['titre'];
+        $tri     = array_key_exists($tri, self::TRIS) ? $tri : 'titre';
         $parPage = in_array($parPage, self::PAR_PAGE_AUTORISES, true) ? $parPage : 12;
+        $ordre   = self::TRIS[$tri];
 
         $total       = $this->films->compter();
         $pagesTotal  = max(1, (int) ceil($total / $parPage));

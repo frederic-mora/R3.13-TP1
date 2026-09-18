@@ -81,12 +81,16 @@ chaque navigation est donc une vraie requête HTTP, visible dans l'onglet Résea
 
 | Route | Effet |
 |---|---|
-| `GET /api/films?page=2` | une page du catalogue, avec les réglages appliqués |
+| `GET /api/films?page=2&tri=note&parPage=24` | une page du catalogue, avec les réglages appliqués |
 | `GET /api/preferences` | les préférences d'affichage de l'utilisateur |
 | `POST /api/preferences` | enregistre `{ "tri": "note", "parPage": 24 }` |
 
 Tris acceptés : `titre`, `annee`, `note`, `genre`.
 Valeurs de `parPage` acceptées : `12`, `24`, `48`.
+
+Dans `GET /api/films`, `tri` et `parPage` sont facultatifs. Le front les ajoute à
+l'URL après un changement de réglage, puis à chaque changement de page ; au
+chargement de la page, il n'en envoie aucun.
 
 La réponse de `GET /api/films` contient les films **et** les réglages que le
 serveur a réellement appliqués (`tri`, `parPage`, `page`, `pagesTotal`, `total`).
