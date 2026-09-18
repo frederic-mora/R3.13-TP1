@@ -456,43 +456,36 @@ footer {
 <p class="duree">20 minutes</p>
 <p class="objectif">Objectif : comprendre le mécanisme avant d'utiliser la fonction PHP qui le pilote. L'ordre des étapes est important, ne le contournez pas.</p>
 
-<div class="box info">
-  <p class="titre">Un deuxième onglet, pour les phases 1 à 3</p>
-  <p>L'API se consulte aussi directement. Ouvrez un nouvel onglet à l'adresse <code>https://mmi.unilim.fr/~votre_login/Base/api/preferences</code>. Le navigateur affiche le JSON renvoyé par <code>PreferencesController::show()</code> :</p>
-  <pre class="http"><code class="nohighlight">{"tri":"titre","parPage":12}</code></pre>
-  <p>Gardez cet onglet ouvert, et ouvrez-y aussi les outils de développement : ils sont propres à chaque onglet. C'est là que vous observerez les phases 1 à 3. Le catalogue, lui, ne tiendra compte de vos cookies qu'à partir de la phase 4.</p>
-</div>
-
 <h4>Étape 1.1 — Poser un cookie à la main</h4>
-<p>Dans <code>PreferencesController::show()</code>, ajoutez un en-tête de réponse écrit littéralement :</p>
+<p>Dans <code>PreferencesController::update()</code>, la méthode appelée quand vous changez un réglage, ajoutez juste avant la réponse un en-tête écrit littéralement :</p>
 
-<pre><code class="language-php">public function show(): void
+<pre><code class="language-php">public function update(Request $requete): void
 {
-    header('Set-Cookie: tp=bonjour');
+    // … lecture et validation de $tri et de $parPage …
 
-    $tri     = self::TRI_DEFAUT;
-    $parPage = self::PAR_PAGE_DEFAUT;
+    header('Set-Cookie: tp=bonjour');
 
     Response::json(['tri' =&gt; $tri, 'parPage' =&gt; $parPage]);
 }</code></pre>
 
-<p>Rechargez l'onglet de l'API <strong>deux fois</strong>, puis inspectez les deux appels à <code>/api/preferences</code> dans son onglet <em>Réseau</em>.</p>
+<p>Dans l'application, videz l'onglet <em>Réseau</em>, puis changez de tri. Comme en phase 0, deux requêtes partent : un <code>POST /api/preferences</code>, puis un <code>GET /api/films</code>. Inspectez-les l'une après l'autre.</p>
 
 <div class="box obs">
   <p class="titre">À observer</p>
-  <p>Dans la <strong>réponse</strong> du premier appel :</p>
+  <p>Dans la <strong>réponse</strong> du <code>POST</code> :</p>
   <pre class="http"><code class="nohighlight">HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 <b>Set-Cookie: tp=bonjour</b></code></pre>
-  <p>Dans la <strong>requête</strong> du second :</p>
-  <pre class="http"><code class="nohighlight">GET /~votre_login/Base/api/preferences HTTP/1.1
+  <p>Dans la <strong>requête</strong> du <code>GET</code> qui le suit :</p>
+  <pre class="http"><code class="nohighlight">GET /~votre_login/Base/api/films?page=1&amp;tri=note&amp;parPage=12 HTTP/1.1
 Host: mmi.unilim.fr
 <b>Cookie: tp=bonjour</b></code></pre>
-  <p>Deux en-têtes différents, deux directions différentes : <code>Set-Cookie</code> descend du serveur, <code>Cookie</code> remonte du navigateur. Vérifiez également la présence du cookie dans <em>Application ▸ Stockage ▸ Cookies</em>.</p>
+  <p>Deux en-têtes différents, deux directions différentes : <code>Set-Cookie</code> descend du serveur, <code>Cookie</code> remonte du navigateur.</p>
+  <p>Remarquez aussi que le cookie, posé par la route <code>/api/preferences</code>, repart vers une <strong>autre</strong> route, <code>/api/films</code>. Aucune ligne de JavaScript ne l'a ajouté : c'est le navigateur qui le joint de lui-même à chaque requête. Rechargez la page, il accompagne encore <code>GET /api/films?page=1</code>. Vérifiez également sa présence dans <em>Application ▸ Stockage ▸ Cookies</em>.</p>
 </div>
 
 <h4>Étape 1.2 — Lire le cookie côté serveur</h4>
-<p>PHP expose les cookies reçus dans la superglobale <code>$_COOKIE</code>. Renvoyez-la temporairement pour l'inspecter :</p>
+<p>PHP expose les cookies reçus dans la superglobale <code>$_COOKIE</code>. Dans <code>update()</code>, renvoyez-la temporairement pour l'inspecter :</p>
 
 <pre><code class="language-php">Response::json([
     'tri'     =&gt; $tri,
@@ -500,12 +493,14 @@ Host: mmi.unilim.fr
     'cookies' =&gt; $_COOKIE,   // à retirer plus tard
 ]);</code></pre>
 
-<p>Rechargez l'onglet de l'API. Le tableau contient désormais <code>tp</code>.</p>
+<p>Changez de nouveau un réglage, puis regardez la réponse du <code>POST</code> dans l'onglet <em>Réseau</em>. Le tableau contient <code>tp</code>.</p>
 
 <h4>Étape 1.3 — La même chose avec <code>setcookie()</code></h4>
 <p>Remplacez l'appel manuel par la fonction PHP dédiée :</p>
 
 <pre><code class="language-php">setcookie('tp', 'bonjour');</code></pre>
+
+<p>Changez un réglage, et regardez à nouveau la réponse du <code>POST</code>.</p>
 
 <div class="box obs">
   <p class="titre">À observer</p>
@@ -553,6 +548,13 @@ setcookie('par_page', (string) $parPage, ['path' =&gt; '/~votre_login/Base/']);<
 $parPage = (int) ($_COOKIE['par_page'] ?? self::PAR_PAGE_DEFAUT);
 
 // … à vous de compléter la validation …</code></pre>
+
+<div class="box info">
+  <p class="titre">Un deuxième onglet, pour lire <code>show()</code></p>
+  <p>L'application n'appelle jamais <code>GET /api/preferences</code> : les seuls appels à cette route que vous voyez passer sont des <code>POST</code>, qui aboutissent dans <code>update()</code>. Pour voir ce que renvoie <code>show()</code>, ouvrez un nouvel onglet à l'adresse <code>https://mmi.unilim.fr/~votre_login/Base/api/preferences</code>. Le navigateur affiche le JSON :</p>
+  <pre class="http"><code class="nohighlight">{"tri":"titre","parPage":12}</code></pre>
+  <p>Gardez cet onglet ouvert jusqu'à la fin de la phase 3. Chaque fois que vous le rechargez, le navigateur envoie un <code>GET</code> avec vos cookies. Le catalogue, lui, ne tiendra compte de vos cookies qu'à partir de la phase 4.</p>
+</div>
 
 <p>Dans l'application, changez de tri, puis rechargez l'onglet de l'API : <code>show()</code> renvoie désormais votre choix, et il résiste à tous les rechargements. Le serveur le reçoit à chaque requête.</p>
 <p>Rechargez maintenant l'application : le catalogue est revenu au tri par titre. Il ne consulte pas encore vos cookies. Vous le brancherez en phase 4.</p>
